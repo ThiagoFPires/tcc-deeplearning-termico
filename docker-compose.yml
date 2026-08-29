@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  thermoscan-app:
+    build:
+      context: ./classificador-termico
+      dockerfile: Dockerfile
+    container_name: thermoscan_cad_app
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./classificador-termico/api/historico_exames.db:/app/api/historico_exames.db
