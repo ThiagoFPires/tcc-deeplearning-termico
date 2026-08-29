@@ -1,5 +1,5 @@
 // ==========================================================================
-// ThermoScan AI — Clean Application Logic (v2.1)
+// ThermoScan AI — Clean Application Logic with SQLite History (v2.2)
 // ==========================================================================
 
 const API_BASE_URL = 'http://127.0.0.1:8000';
@@ -31,11 +31,14 @@ const sampleSaudavel2 = document.getElementById('sample-saudavel-2');
 const sampleDoente1 = document.getElementById('sample-doente-1');
 const sampleDoente2 = document.getElementById('sample-doente-2');
 
-// DOM Elements - Viewer
+// DOM Elements - Viewer Tabs
 const tabSide = document.getElementById('tab-side');
 const tabBlend = document.getElementById('tab-blend');
+const tabHistory = document.getElementById('tab-history');
+
 const modeSide = document.getElementById('mode-side');
 const modeBlend = document.getElementById('mode-blend');
+const viewHistory = document.getElementById('view-history');
 const runtimeBadge = document.getElementById('runtime-badge');
 
 const viewEmpty = document.getElementById('view-empty');
@@ -63,6 +66,11 @@ const probValSick = document.getElementById('prob-val-sick');
 const barSick = document.getElementById('bar-sick');
 const noteExplanationText = document.getElementById('note-explanation-text');
 const btnResetExam = document.getElementById('btn-reset-exam');
+
+// History Table
+const historyTbody = document.getElementById('history-tbody');
+const btnRefreshHistory = document.getElementById('btn-refresh-history');
+const btnClearHistory = document.getElementById('btn-clear-history');
 
 // ==========================================================================
 // 1. Initialization
@@ -119,21 +127,45 @@ cmapChoices.forEach(btn => {
 });
 
 // ==========================================================================
-// 3. Tab Switching & Blend Slider
+// 3. Tab Switching
 // ==========================================================================
 tabSide.addEventListener('click', () => {
-    tabSide.classList.add('active');
-    tabBlend.classList.remove('active');
-    modeSide.classList.remove('hidden');
-    modeBlend.classList.add('hidden');
+    ativarTab(tabSide);
+    viewHistory.classList.add('hidden');
+    if (resultadoAtual) {
+        viewResults.classList.remove('hidden');
+        modeSide.classList.remove('hidden');
+        modeBlend.classList.add('hidden');
+    } else {
+        viewEmpty.classList.remove('hidden');
+    }
 });
 
 tabBlend.addEventListener('click', () => {
-    tabBlend.classList.add('active');
-    tabSide.classList.remove('active');
-    modeBlend.classList.remove('hidden');
-    modeSide.classList.add('hidden');
+    ativarTab(tabBlend);
+    viewHistory.classList.add('hidden');
+    if (resultadoAtual) {
+        viewResults.classList.remove('hidden');
+        modeBlend.classList.remove('hidden');
+        modeSide.classList.add('hidden');
+    } else {
+        viewEmpty.classList.remove('hidden');
+    }
 });
+
+tabHistory.addEventListener('click', () => {
+    ativarTab(tabHistory);
+    viewEmpty.classList.add('hidden');
+    viewLoading.classList.add('hidden');
+    viewResults.classList.add('hidden');
+    viewHistory.classList.remove('hidden');
+    carregarHistorico();
+});
+
+function ativarTab(tabAtiva) {
+    [tabSide, tabBlend, tabHistory].forEach(t => t.classList.remove('active'));
+    tabAtiva.classList.add('active');
+}
 
 blendSlider.addEventListener('input', (e) => {
     const val = e.target.value;
@@ -208,7 +240,9 @@ function limparExame() {
     dropzoneIdle.classList.remove('hidden');
     btnExecute.disabled = true;
     viewResults.classList.add('hidden');
+    viewHistory.classList.add('hidden');
     viewEmpty.classList.remove('hidden');
+    ativarTab(tabSide);
     runtimeBadge.textContent = 'Aguardando exame';
 }
 
@@ -250,6 +284,7 @@ async function processarDiagnostico() {
     spinnerWheel.classList.remove('hidden');
     viewEmpty.classList.add('hidden');
     viewResults.classList.add('hidden');
+    viewHistory.classList.add('hidden');
     viewLoading.classList.remove('hidden');
     loadingStatusText.textContent = `Executando inferência com ${modeloSelecionado.toUpperCase()} e paleta ${paletaSelecionada.toUpperCase()}...`;
 
@@ -290,6 +325,14 @@ function renderizarLaudo(data) {
     viewLoading.classList.add('hidden');
     viewResults.classList.remove('hidden');
 
+    if (tabBlend.classList.contains('active')) {
+        modeBlend.classList.remove('hidden');
+        modeSide.classList.add('hidden');
+    } else {
+        modeSide.classList.remove('hidden');
+        modeBlend.classList.add('hidden');
+    }
+
     const pred = data.predicao;
     const isDoente = pred.classe_id === 1;
 
@@ -327,4 +370,57 @@ function renderizarLaudo(data) {
 
     probValSick.textContent = `${pred.probabilidade_doente.toFixed(1)}%`;
     barSick.style.width = `${pred.probabilidade_doente}%`;
+}
+
+// ==========================================================================
+// 8. History Database Management (SQLite)
+// ==========================================================================
+btnRefreshHistory.addEventListener('click', () => carregarHistorico());
+
+btnClearHistory.addEventListener('click', async () => {
+    if (confirm('Deseja realmente limpar todo o histórico de exames salvos?')) {
+        try {
+            await fetch(`${API_BASE_URL}/api/historico`, { method: 'DELETE' });
+            carregarHistorico();
+        } catch (e) {
+            console.error('Erro ao limpar histórico:', e);
+        }
+    }
+});
+
+async function carregarHistorico() {
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/historico`);
+        if (res.ok) {
+            const data = await res.json();
+            renderizarTabelaHistorico(data.historico || []);
+        }
+    } catch (e) {
+        historyTbody.innerHTML = `<tr><td colspan="7" class="table-empty">Falha ao carregar histórico da API.</td></tr>`;
+    }
+}
+
+function renderizarTabelaHistorico(lista) {
+    if (lista.length === 0) {
+        historyTbody.innerHTML = `<tr><td colspan="7" class="table-empty">Nenhum exame gravado no banco de dados ainda.</td></tr>`;
+        return;
+    }
+
+    historyTbody.innerHTML = lista.map(item => {
+        const isDoente = item.classe_id === 1;
+        const tagClass = isDoente ? 'badge-alert' : 'badge-normal';
+        const tagText = isDoente ? 'Alteração' : 'Normal';
+
+        return `
+            <tr>
+                <td>#${item.id}</td>
+                <td>${item.data_hora}</td>
+                <td><strong>${item.nome_arquivo}</strong></td>
+                <td>${item.modelo_utilizado}</td>
+                <td><span class="table-badge ${tagClass}">${tagText}</span></td>
+                <td><strong>${item.confianca.toFixed(1)}%</strong></td>
+                <td>${item.tempo_ms} ms</td>
+            </tr>
+        `;
+    }).join('');
 }

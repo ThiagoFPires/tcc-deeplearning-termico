@@ -21,7 +21,7 @@
                     </svg>
                 </div>
                 <div class="brand-info">
-                    <h1 class="brand-name">ThermoScan <span class="badge-tag">CADe v2.0</span></h1>
+                    <h1 class="brand-name">ThermoScan <span class="badge-tag">CADe v2.1</span></h1>
                     <p class="brand-desc">Sistema de Apoio à Decisão Clínica em Mastologia Térmica</p>
                 </div>
             </div>
@@ -156,11 +156,12 @@
             <section class="panel-right">
                 <!-- Viewer Card -->
                 <div class="card-box card-viewer">
-                    <!-- Viewer Nav Header -->
+                    <!-- Viewer Nav Header with 3 Tabs -->
                     <div class="viewer-top-bar">
                         <div class="viewer-tabs">
                             <button class="v-tab active" id="tab-side">Visão Lado a Lado</button>
-                            <button class="v-tab" id="tab-blend">Sobreposição Interativa (Blend)</button>
+                            <button class="v-tab" id="tab-blend">Sobreposição (Blend)</button>
+                            <button class="v-tab" id="tab-history">Histórico Clínico</button>
                         </div>
                         <div class="runtime-badge" id="runtime-badge">
                             <span>Aguardando exame</span>
@@ -302,6 +303,42 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- State 4: History Table View -->
+                    <div class="view-history hidden" id="view-history">
+                        <div class="history-header">
+                            <div>
+                                <h4>Histórico de Exames Processados</h4>
+                                <p class="history-sub">Registros armazenados localmente no banco de dados SQLite</p>
+                            </div>
+                            <div class="history-actions">
+                                <button class="btn-sec-sm" id="btn-refresh-history">Atualizar</button>
+                                <button class="btn-sec-sm btn-danger-sm" id="btn-clear-history">Limpar Banco</button>
+                            </div>
+                        </div>
+
+                        <div class="history-table-container">
+                            <table class="history-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Data / Hora</th>
+                                        <th>Arquivo</th>
+                                        <th>Modelo</th>
+                                        <th>Resultado</th>
+                                        <th>Certeza</th>
+                                        <th>Tempo</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="history-tbody">
+                                    <tr>
+                                        <td colspan="7" class="table-empty">Nenhum exame gravado ainda.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
                 </div>
             </section>
         </main>

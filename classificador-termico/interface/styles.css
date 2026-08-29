@@ -215,7 +215,7 @@ body {
 
 /* ==========================================================================
    Main Grid Layout
-   ========================================================================== */
+   ========================================================================= */
 .workspace-grid {
     display: grid;
     grid-template-columns: 360px 1fr;
@@ -547,7 +547,7 @@ body {
 }
 
 /* ==========================================================================
-   Right Panel: Visualizer & Report Card
+   Right Panel: Visualizer, Report Card & History
    ========================================================================== */
 .card-viewer {
     min-height: 540px;
@@ -997,6 +997,125 @@ body {
 .btn-secondary:hover {
     background: rgba(255, 255, 255, 0.08);
     border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ==========================================================================
+   History Table View
+   ========================================================================== */
+.view-history {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.history-header h4 {
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.history-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.history-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-sec-sm {
+    background: var(--bg-card-elevated);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 5px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.btn-sec-sm:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+}
+
+.btn-danger-sm:hover {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--status-alert);
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.history-table-container {
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    overflow-x: auto;
+    max-height: 440px;
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    text-align: left;
+}
+
+.history-table th {
+    background: var(--bg-card-elevated);
+    color: var(--text-secondary);
+    font-weight: 700;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: sticky;
+    top: 0;
+}
+
+.history-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    color: var(--text-primary);
+}
+
+.history-table tr:hover td {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.table-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+}
+
+.badge-normal {
+    background: var(--status-healthy-bg);
+    color: #34D399;
+}
+
+.badge-alert {
+    background: var(--status-alert-bg);
+    color: #F87171;
+}
+
+.table-empty {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 30px !important;
 }
 
 .hidden {

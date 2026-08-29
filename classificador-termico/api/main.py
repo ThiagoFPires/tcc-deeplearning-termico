@@ -20,13 +20,16 @@ TREINAMENTO_DIR = os.path.join(PROJECT_ROOT, 'treinamento')
 MODELOS_DIR = os.path.join(PROJECT_ROOT, 'modelos_salvos')
 
 sys.path.insert(0, TREINAMENTO_DIR)
+sys.path.insert(0, API_DIR)
+
 from modelos import criar_modelo
 from gradcam import GradCAM, sobrepor_heatmap
+from banco import inicializar_banco, salvar_exame, listar_historico, limpar_historico
 
 app = FastAPI(
     title="ThermoScan Clinical API",
     description="Serviço de Diagnóstico e Explicabilidade Visual (Grad-CAM) para Termografia Mamária.",
-    version="2.0.0"
+    version="2.1.0"
 )
 
 # Habilita CORS total para conexão com a Interface Web
@@ -52,6 +55,8 @@ TRANSFORMACOES = transforms.Compose([
 
 def carregar_modelos():
     global MODELOS, GRADCAMS
+    inicializar_banco()
+    
     modelos_info = [
         ('efficientnet_b0', 'melhor_efficientnet_b0.pth'),
         ('resnet50', 'melhor_resnet50.pth')
@@ -140,7 +145,6 @@ async def diagnosticar_termograma(
         imagem_tensor = TRANSFORMACOES(imagem_pil).unsqueeze(0).to(DEVICE)
 
         if nome_mod == 'ensemble':
-            # Combinação ponderada (60% EfficientNet-B0 + 40% ResNet-50)
             m_eff = MODELOS.get('efficientnet_b0')
             m_res = MODELOS.get('resnet50')
 
@@ -154,7 +158,6 @@ async def diagnosticar_termograma(
             prob_saudavel = float(probs[0]) * 100
             prob_doente = float(probs[1]) * 100
 
-            # Usa o Grad-CAM da EfficientNet como referência visual
             with torch.enable_grad():
                 heatmap, _, _ = GRADCAMS['efficientnet_b0'].gerar_mapa(imagem_tensor)
 
@@ -180,13 +183,11 @@ async def diagnosticar_termograma(
         overlay_array = sobrepor_heatmap(imagem_pil, heatmap, alpha=0.45, colormap_name=paleta_valida)
         overlay_pil = Image.fromarray((overlay_array * 255).astype(np.uint8))
 
-        # Gera Heatmap Puro Colorido
         cmap = plt.get_cmap(paleta_valida)
         heatmap_resized = Image.fromarray(np.uint8(255 * heatmap)).resize(imagem_pil.size, Image.Resampling.BICUBIC)
         heatmap_color = (cmap(np.array(heatmap_resized) / 255.0)[:, :, :3] * 255).astype(np.uint8)
         heatmap_pil = Image.fromarray(heatmap_color)
 
-        # Converte para Base64
         buf_overlay = io.BytesIO()
         overlay_pil.save(buf_overlay, format="PNG")
         overlay_b64 = "data:image/png;base64," + base64.b64encode(buf_overlay.getvalue()).decode('utf-8')
@@ -197,21 +198,33 @@ async def diagnosticar_termograma(
 
         tempo_inferencia_ms = round((time.time() - t_inicio) * 1000, 2)
 
-        diagnostico_texto = "Padrão Patológico / Anomalia Térmica Detectada" if pred_classe == 1 else "Padrão Fisiológico Normal / Sem Anomalias"
-        nivel_alerta = "alto" if (pred_classe == 1 and confianca >= 0.8) else ("medio" if pred_classe == 1 else "baixo")
+        diagnostico_texto = "Alteração Térmica Detectada" if pred_classe == 1 else "Padrão Fisiológico Normal"
+        confianca_pct = round(confianca * 100, 2)
+
+        # Salva o exame no banco de dados SQLite para histórico
+        registro_id = salvar_exame(
+            nome_arquivo=arquivo.filename,
+            modelo_utilizado=nome_exibicao_modelo,
+            classe_id=int(pred_classe),
+            diagnostico=diagnostico_texto,
+            confianca=confianca_pct,
+            prob_saudavel=round(prob_saudavel, 2),
+            prob_doente=round(prob_doente, 2),
+            tempo_ms=tempo_inferencia_ms
+        )
 
         return {
             "status": "sucesso",
+            "registro_id": registro_id,
             "tempo_ms": tempo_inferencia_ms,
             "arquivo": arquivo.filename,
             "modelo_utilizado": nome_exibicao_modelo,
             "predicao": {
                 "classe_id": int(pred_classe),
                 "diagnostico": diagnostico_texto,
-                "confianca_percentual": round(confianca * 100, 2),
+                "confianca_percentual": confianca_pct,
                 "probabilidade_saudavel": round(prob_saudavel, 2),
-                "probabilidade_doente": round(prob_doente, 2),
-                "nivel_alerta": nivel_alerta
+                "probabilidade_doente": round(prob_doente, 2)
             },
             "gradcam_overlay_base64": overlay_b64,
             "gradcam_pure_base64": heatmap_b64
@@ -219,6 +232,17 @@ async def diagnosticar_termograma(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao processar imagem: {str(e)}")
+
+@app.get("/api/historico")
+def obter_historico():
+    """Retorna o histórico de exames salvos no banco SQLite."""
+    return {"historico": listar_historico(limite=50)}
+
+@app.delete("/api/historico")
+def deletar_historico():
+    """Limpa a tabela de histórico de exames."""
+    limpar_historico()
+    return {"status": "sucesso", "mensagem": "Histórico limpo com sucesso."}
 
 @app.get("/api/exemplos")
 def listar_exemplos():
