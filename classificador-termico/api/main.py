@@ -276,6 +276,19 @@ def obter_amostra(classe: str, paciente_id: str, arquivo: str):
         return FileResponse(caminho)
     raise HTTPException(status_code=404, detail="Amostra não encontrada.")
 
+# Monta a interface web diretamente no FastAPI (porta 8000)
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse
+
+INTERFACE_DIR = os.path.join(PROJECT_ROOT, 'interface')
+if os.path.exists(INTERFACE_DIR):
+    app.mount("/web", StaticFiles(directory=INTERFACE_DIR, html=True), name="web")
+
+    @app.get("/app")
+    def redirecionar_app():
+        return RedirectResponse(url="/web/")
+
 if __name__ == '__main__':
     import uvicorn
     uvicorn.run(app, host="127.0.0.1", port=8000)
+

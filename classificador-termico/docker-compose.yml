@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   thermoscan-app:
     build:
@@ -12,5 +10,4 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
     volumes:
-      # Persiste o banco de dados de histórico mesmo se o container for reiniciado
       - ./api/historico_exames.db:/app/api/historico_exames.db
