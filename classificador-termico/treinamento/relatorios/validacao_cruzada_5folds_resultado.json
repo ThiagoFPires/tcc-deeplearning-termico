@@ -1,0 +1,155 @@
+{
+    "modelo": "efficientnet_b0",
+    "n_splits": 5,
+    "tempo_total_minutos": 14.13,
+    "resumo_estatistico": {
+        "acuracia": {
+            "media": 0.9585,
+            "desvio_padrao": 0.0224,
+            "valores_por_fold": [
+                0.94,
+                0.9617,
+                0.9933,
+                0.9683,
+                0.9293
+            ]
+        },
+        "sensibilidade": {
+            "media": 0.9431,
+            "desvio_padrao": 0.044,
+            "valores_por_fold": [
+                0.9088,
+                0.9912,
+                0.9889,
+                0.9472,
+                0.8794
+            ]
+        },
+        "especificidade": {
+            "media": 0.9808,
+            "desvio_padrao": 0.0298,
+            "valores_por_fold": [
+                0.9808,
+                0.9231,
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        "precisao": {
+            "media": 0.9856,
+            "desvio_padrao": 0.0217,
+            "valores_por_fold": [
+                0.9841,
+                0.944,
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        "f1_score": {
+            "media": 0.963,
+            "desvio_padrao": 0.0208,
+            "valores_por_fold": [
+                0.945,
+                0.967,
+                0.9944,
+                0.9729,
+                0.9358
+            ]
+        },
+        "auc_roc": {
+            "media": 0.9828,
+            "desvio_padrao": 0.0184,
+            "valores_por_fold": [
+                0.9724,
+                0.9926,
+                1.0,
+                0.9974,
+                0.9516
+            ]
+        }
+    },
+    "detalhes_folds": [
+        {
+            "fold": 1,
+            "acuracia": 0.94,
+            "sensibilidade": 0.9088,
+            "especificidade": 0.9808,
+            "precisao": 0.9841,
+            "f1_score": 0.945,
+            "auc_roc": 0.9724,
+            "matriz_confusao": {
+                "tn": 255,
+                "fp": 5,
+                "fn": 31,
+                "tp": 309
+            },
+            "tempo_segundos": 144.5
+        },
+        {
+            "fold": 2,
+            "acuracia": 0.9617,
+            "sensibilidade": 0.9912,
+            "especificidade": 0.9231,
+            "precisao": 0.944,
+            "f1_score": 0.967,
+            "auc_roc": 0.9926,
+            "matriz_confusao": {
+                "tn": 240,
+                "fp": 20,
+                "fn": 3,
+                "tp": 337
+            },
+            "tempo_segundos": 144.1
+        },
+        {
+            "fold": 3,
+            "acuracia": 0.9933,
+            "sensibilidade": 0.9889,
+            "especificidade": 1.0,
+            "precisao": 1.0,
+            "f1_score": 0.9944,
+            "auc_roc": 1.0,
+            "matriz_confusao": {
+                "tn": 240,
+                "fp": 0,
+                "fn": 4,
+                "tp": 355
+            },
+            "tempo_segundos": 113.5
+        },
+        {
+            "fold": 4,
+            "acuracia": 0.9683,
+            "sensibilidade": 0.9472,
+            "especificidade": 1.0,
+            "precisao": 1.0,
+            "f1_score": 0.9729,
+            "auc_roc": 0.9974,
+            "matriz_confusao": {
+                "tn": 240,
+                "fp": 0,
+                "fn": 19,
+                "tp": 341
+            },
+            "tempo_segundos": 207.1
+        },
+        {
+            "fold": 5,
+            "acuracia": 0.9293,
+            "sensibilidade": 0.8794,
+            "especificidade": 1.0,
+            "precisao": 1.0,
+            "f1_score": 0.9358,
+            "auc_roc": 0.9516,
+            "matriz_confusao": {
+                "tn": 240,
+                "fp": 0,
+                "fn": 41,
+                "tp": 299
+            },
+            "tempo_segundos": 238.6
+        }
+    ]
+}
