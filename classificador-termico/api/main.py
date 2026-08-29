@@ -5,7 +5,7 @@ import io
 import base64
 import time
 import torch
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse
 from PIL import Image
@@ -24,9 +24,9 @@ from modelos import criar_modelo
 from gradcam import GradCAM, sobrepor_heatmap
 
 app = FastAPI(
-    title="API - Classificador Térmico Mamário",
-    description="Serviço de Inferência e Explicabilidade Visual (Grad-CAM) para Detecção de Patologias em Termogramas Mamários via Deep Learning.",
-    version="1.0.0"
+    title="ThermoScan Clinical API",
+    description="Serviço de Diagnóstico e Explicabilidade Visual (Grad-CAM) para Termografia Mamária.",
+    version="2.0.0"
 )
 
 # Habilita CORS total para conexão com a Interface Web
@@ -38,10 +38,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Variáveis globais do modelo
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-MODELO = None
-GRADCAM = None
+
+# Dicionários globais de modelos e Grad-CAMs
+MODELOS = {}
+GRADCAMS = {}
 
 TRANSFORMACOES = transforms.Compose([
     transforms.Resize((224, 224)),
@@ -49,102 +50,161 @@ TRANSFORMACOES = transforms.Compose([
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
+def carregar_modelos():
+    global MODELOS, GRADCAMS
+    modelos_info = [
+        ('efficientnet_b0', 'melhor_efficientnet_b0.pth'),
+        ('resnet50', 'melhor_resnet50.pth')
+    ]
+
+    for nome, arquivo in modelos_info:
+        caminho = os.path.join(MODELOS_DIR, arquivo)
+        if os.path.exists(caminho):
+            print(f"Carregando {nome.upper()} no dispositivo: {DEVICE}...")
+            m = criar_modelo(nome_modelo=nome, num_classes=2, pretrained=False)
+            checkpoint = torch.load(caminho, map_location=DEVICE, weights_only=False)
+            m.load_state_dict(checkpoint['state_dict'])
+            m.to(DEVICE)
+            m.eval()
+            MODELOS[nome] = m
+
+            # Configura Grad-CAM para cada modelo
+            target_layer = m.features[-1] if nome == 'efficientnet_b0' else m.layer4[-1]
+            GRADCAMS[nome] = GradCAM(m, target_layer)
+            print(f" -> {nome.upper()} pronto!")
+
 @app.on_event("startup")
-def carregar_modelo_ao_iniciar():
-    global MODELO, GRADCAM
-    caminho_pesos = os.path.join(MODELOS_DIR, "melhor_efficientnet_b0.pth")
-    
-    if not os.path.exists(caminho_pesos):
-        print(f"[AVISO] Pesos do modelo não encontrados em {caminho_pesos}")
-        return
-
-    print(f"Carregando EfficientNet-B0 no dispositivo: {DEVICE}...")
-    MODELO = criar_modelo(nome_modelo='efficientnet_b0', num_classes=2, pretrained=False)
-    checkpoint = torch.load(caminho_pesos, map_location=DEVICE, weights_only=False)
-    MODELO.load_state_dict(checkpoint['state_dict'])
-    MODELO.to(DEVICE)
-    MODELO.eval()
-
-    # Inicializa Grad-CAM na última camada convolucional
-    target_layer = MODELO.features[-1]
-    GRADCAM = GradCAM(MODELO, target_layer)
-    print("Modelo e Grad-CAM carregados e prontos para inferência!")
+def startup_event():
+    carregar_modelos()
 
 @app.get("/")
 def raiz():
     return {
-        "sistema": "Classificador Térmico Mamário IA",
+        "sistema": "ThermoScan Clinical Suite",
         "status": "online",
         "dispositivo": str(DEVICE),
         "gpu": torch.cuda.get_device_name(0) if torch.cuda.is_available() else "N/A",
-        "modelo_carregado": MODELO is not None
+        "modelos_disponiveis": list(MODELOS.keys())
     }
 
 @app.get("/api/info")
-def informacoes_modelo():
+def informacoes_modelos():
     return {
-        "arquitetura": "EfficientNet-B0",
-        "acuracia_teste": 93.54,
-        "sensibilidade_recall": 95.00,
-        "especificidade": 91.50,
-        "precisao": 93.99,
-        "f1_score": 0.9449,
-        "auc_roc": 0.9865,
-        "parametros_totais": "4,01 Milhões",
-        "dataset": "DMR-IR (Database for Mastology Research with Infrared Image)",
-        "aceleracao_hardware": "NVIDIA GeForce RTX 5060 (CUDA 12.8)"
+        "efficientnet_b0": {
+            "nome_exibicao": "EfficientNet-B0 (Modelo Proposto)",
+            "acuracia_teste": 93.54,
+            "sensibilidade": 95.00,
+            "especificidade": 91.50,
+            "precisao": 93.99,
+            "f1_score": 0.9449,
+            "auc_roc": 0.9865,
+            "parametros": "4,01 M",
+            "destaque": "Mais leve, rápido e com maior sensibilidade clínica."
+        },
+        "resnet50": {
+            "nome_exibicao": "ResNet-50 (Baseline Comparativo)",
+            "acuracia_teste": 90.62,
+            "sensibilidade": 92.86,
+            "especificidade": 87.50,
+            "precisao": 91.23,
+            "f1_score": 0.9204,
+            "auc_roc": 0.9555,
+            "parametros": "23,51 M",
+            "destaque": "Arquitetura clássica com blocos residuais profundos."
+        }
     }
 
 @app.post("/api/diagnosticar")
-async def diagnosticar_termograma(arquivo: UploadFile = File(...)):
-    global MODELO, GRADCAM
-    if MODELO is None or GRADCAM is None:
-        carregar_modelo_ao_iniciar()
-        if MODELO is None:
-            raise HTTPException(status_code=500, detail="Modelo neural não carregado.")
+async def diagnosticar_termograma(
+    arquivo: UploadFile = File(...),
+    modelo_escolhido: str = Form("efficientnet_b0"),
+    paleta_cor: str = Form("jet")
+):
+    global MODELOS, GRADCAMS
+    if not MODELOS:
+        carregar_modelos()
+
+    nome_mod = modelo_escolhido.lower().strip()
+    if nome_mod not in ['efficientnet_b0', 'resnet50', 'ensemble']:
+        nome_mod = 'efficientnet_b0'
 
     # Validação de formato
     ext = os.path.splitext(arquivo.filename)[1].lower()
     if ext not in ['.jpg', '.jpeg', '.png', '.bmp']:
-        raise HTTPException(status_code=400, detail="Formato de imagem inválido. Use JPG ou PNG.")
+        raise HTTPException(status_code=400, detail="Formato inválido. Use JPG ou PNG.")
 
     try:
         t_inicio = time.time()
         conteudo_bytes = await arquivo.read()
         imagem_pil = Image.open(io.BytesIO(conteudo_bytes)).convert('RGB')
-
-        # Pré-processamento
         imagem_tensor = TRANSFORMACOES(imagem_pil).unsqueeze(0).to(DEVICE)
 
-        # Inferência com Grad-CAM
-        with torch.enable_grad():
-            heatmap, pred_classe, confianca = GRADCAM.gerar_mapa(imagem_tensor)
+        if nome_mod == 'ensemble':
+            # Combinação ponderada (60% EfficientNet-B0 + 40% ResNet-50)
+            m_eff = MODELOS.get('efficientnet_b0')
+            m_res = MODELOS.get('resnet50')
 
-        # Cálculo de probabilidades das 2 classes
-        with torch.no_grad():
-            logits = MODELO(imagem_tensor)
-            probs = torch.softmax(logits, dim=1)[0].cpu().numpy()
+            with torch.no_grad():
+                probs_eff = torch.softmax(m_eff(imagem_tensor), dim=1)[0]
+                probs_res = torch.softmax(m_res(imagem_tensor), dim=1)[0]
+                probs = (0.6 * probs_eff + 0.4 * probs_res).cpu().numpy()
+
+            pred_classe = int(np.argmax(probs))
+            confianca = float(probs[pred_classe])
             prob_saudavel = float(probs[0]) * 100
             prob_doente = float(probs[1]) * 100
 
-        # Gera Sobreposição Grad-CAM
-        overlay_array = sobrepor_heatmap(imagem_pil, heatmap, alpha=0.45, colormap_name='jet')
+            # Usa o Grad-CAM da EfficientNet como referência visual
+            with torch.enable_grad():
+                heatmap, _, _ = GRADCAMS['efficientnet_b0'].gerar_mapa(imagem_tensor)
+
+            nome_exibicao_modelo = "Ensemble (EfficientNet-B0 + ResNet-50)"
+
+        else:
+            modelo = MODELOS[nome_mod]
+            gradcam = GRADCAMS[nome_mod]
+
+            with torch.enable_grad():
+                heatmap, pred_classe, confianca = gradcam.gerar_mapa(imagem_tensor)
+
+            with torch.no_grad():
+                logits = modelo(imagem_tensor)
+                probs = torch.softmax(logits, dim=1)[0].cpu().numpy()
+                prob_saudavel = float(probs[0]) * 100
+                prob_doente = float(probs[1]) * 100
+
+            nome_exibicao_modelo = "EfficientNet-B0" if nome_mod == 'efficientnet_b0' else "ResNet-50"
+
+        # Gera Mapa Grad-CAM Puro e Sobreposição
+        paleta_valida = paleta_cor if paleta_cor in ['jet', 'inferno', 'turbo', 'magma', 'plasma'] else 'jet'
+        overlay_array = sobrepor_heatmap(imagem_pil, heatmap, alpha=0.45, colormap_name=paleta_valida)
         overlay_pil = Image.fromarray((overlay_array * 255).astype(np.uint8))
 
-        # Converte a imagem de sobreposição para Base64 para envio direto ao frontend
-        buffer = io.BytesIO()
-        overlay_pil.save(buffer, format="PNG")
-        overlay_b64 = "data:image/png;base64," + base64.b64encode(buffer.getvalue()).decode('utf-8')
+        # Gera Heatmap Puro Colorido
+        cmap = plt.get_cmap(paleta_valida)
+        heatmap_resized = Image.fromarray(np.uint8(255 * heatmap)).resize(imagem_pil.size, Image.Resampling.BICUBIC)
+        heatmap_color = (cmap(np.array(heatmap_resized) / 255.0)[:, :, :3] * 255).astype(np.uint8)
+        heatmap_pil = Image.fromarray(heatmap_color)
+
+        # Converte para Base64
+        buf_overlay = io.BytesIO()
+        overlay_pil.save(buf_overlay, format="PNG")
+        overlay_b64 = "data:image/png;base64," + base64.b64encode(buf_overlay.getvalue()).decode('utf-8')
+
+        buf_heat = io.BytesIO()
+        heatmap_pil.save(buf_heat, format="PNG")
+        heatmap_b64 = "data:image/png;base64," + base64.b64encode(buf_heat.getvalue()).decode('utf-8')
 
         tempo_inferencia_ms = round((time.time() - t_inicio) * 1000, 2)
 
-        diagnostico_texto = "Doente (Anomalia Térmica Detectada)" if pred_classe == 1 else "Saudável (Sem Anomalias)"
+        diagnostico_texto = "Padrão Patológico / Anomalia Térmica Detectada" if pred_classe == 1 else "Padrão Fisiológico Normal / Sem Anomalias"
         nivel_alerta = "alto" if (pred_classe == 1 and confianca >= 0.8) else ("medio" if pred_classe == 1 else "baixo")
 
         return {
             "status": "sucesso",
             "tempo_ms": tempo_inferencia_ms,
             "arquivo": arquivo.filename,
+            "modelo_utilizado": nome_exibicao_modelo,
             "predicao": {
                 "classe_id": int(pred_classe),
                 "diagnostico": diagnostico_texto,
@@ -153,7 +213,8 @@ async def diagnosticar_termograma(arquivo: UploadFile = File(...)):
                 "probabilidade_doente": round(prob_doente, 2),
                 "nivel_alerta": nivel_alerta
             },
-            "gradcam_base64": overlay_b64
+            "gradcam_overlay_base64": overlay_b64,
+            "gradcam_pure_base64": heatmap_b64
         }
 
     except Exception as e:
@@ -161,27 +222,26 @@ async def diagnosticar_termograma(arquivo: UploadFile = File(...)):
 
 @app.get("/api/exemplos")
 def listar_exemplos():
-    """Retorna uma lista de imagens de exemplo para testes na interface."""
     dataset_dir = os.path.join(TREINAMENTO_DIR, 'dataset')
     exemplos = []
 
-    for classe, nome in [('saudavel', 'Saudável (Classe 0)'), ('doente', 'Doente (Classe 1)')]:
-        caminho_classe = os.path.join(dataset_dir, classe)
-        if os.path.exists(caminho_classe):
-            pastas = [p for p in os.listdir(caminho_classe) if os.path.isdir(os.path.join(caminho_classe, p))]
-            if pastas:
-                # Pega 2 pacientes de cada classe
-                for p in pastas[:2]:
-                    pasta_p = os.path.join(caminho_classe, p)
-                    imgs = [f for f in os.listdir(pasta_p) if f.lower().endswith(('.jpg', '.png'))]
-                    if imgs:
-                        exemplos.append({
-                            "categoria": classe,
-                            "paciente_id": p,
-                            "arquivo": imgs[0],
-                            "rotulo_esperado": nome,
-                            "url": f"/api/amostra/{classe}/{p}/{imgs[0]}"
-                        })
+    casos = [
+        ('saudavel', '1', 'Paciente #01 (Saudável)', 'T0001.1.1.D.2012-10-08.00.jpg'),
+        ('saudavel', '10', 'Paciente #10 (Saudável)', 'T0010.1.1.D.2012-10-24.00.jpg'),
+        ('doente', '144', 'Paciente #144 (Patologia)', 'T0144.1.1.D.2013-01-29.00.jpg'),
+        ('doente', '156', 'Paciente #156 (Patologia)', 'TFRON_V159_18-2-2013_00.jpg')
+    ]
+
+    for cat, p_id, rotulo, arq in casos:
+        caminho = os.path.join(dataset_dir, cat, p_id, arq)
+        if os.path.exists(caminho):
+            exemplos.append({
+                "categoria": cat,
+                "paciente_id": p_id,
+                "arquivo": arq,
+                "rotulo_exibicao": rotulo,
+                "url": f"/api/amostra/{cat}/{p_id}/{arq}"
+            })
 
     return {"exemplos": exemplos}
 
