@@ -20,6 +20,8 @@
     --status-healthy-bg: rgba(16, 185, 129, 0.12);
     --status-alert: #EF4444;
     --status-alert-bg: rgba(239, 68, 68, 0.12);
+    --status-warning: #F59E0B;
+    --status-warning-bg: rgba(245, 158, 11, 0.10);
 
     --text-primary: #F8FAFC;
     --text-secondary: #94A3B8;
@@ -923,9 +925,10 @@ body {
     font-size: 12px;
 }
 
-.note-bullet {
-    font-size: 15px;
-    line-height: 1;
+.note-icon-wrap {
+    color: var(--brand-accent);
+    margin-top: 1px;
+    flex-shrink: 0;
 }
 
 .note-body strong {
@@ -935,6 +938,35 @@ body {
 .note-body p {
     color: var(--text-secondary);
     margin-top: 2px;
+}
+
+/* Mandatory Clinical Disclaimer */
+.clinical-disclaimer {
+    background: var(--status-warning-bg);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.disclaimer-icon-wrap {
+    color: var(--status-warning);
+    margin-top: 1px;
+    flex-shrink: 0;
+}
+
+.disclaimer-text {
+    color: #FDE68A;
+}
+
+.disclaimer-text strong {
+    color: #FFF;
+    display: block;
+    margin-bottom: 2px;
 }
 
 /* Action Bar */
@@ -953,7 +985,7 @@ body {
     font-family: var(--font-main);
     font-size: 12px;
     font-weight: 600;
-    padding: 7px 14px;
+    padding: 7px 16px;
     border-radius: var(--radius-sm);
     cursor: pointer;
     display: flex;
@@ -969,27 +1001,4 @@ body {
 
 .hidden {
     display: none !important;
-}
-
-/* Print Stylesheet */
-@media print {
-    body {
-        background: #fff;
-        color: #000;
-    }
-    .app-header, .panel-left, .viewer-top-bar, .blend-slider-row, .report-bottom-actions {
-        display: none !important;
-    }
-    .workspace-grid {
-        grid-template-columns: 1fr;
-    }
-    .card-box, .report-box {
-        border: none;
-        box-shadow: none;
-        background: #fff;
-        color: #000;
-    }
-    .img-frame {
-        border: 1px solid #ccc;
-    }
 }
