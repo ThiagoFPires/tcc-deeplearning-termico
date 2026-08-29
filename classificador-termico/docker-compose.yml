@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  thermoscan-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: thermoscan_cad_app
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      # Persiste o banco de dados de histórico mesmo se o container for reiniciado
+      - ./api/historico_exames.db:/app/api/historico_exames.db
