@@ -1,0 +1,10 @@
+{
+  "site_package_search_strategy": "all",
+  "search_path": [
+    "C:/Users/abcdt/Documents/tcc-deeplearning-termico/classificador-termico/venv/Lib/site-packages",
+    "C:/Users/abcdt/Documents/tcc-deeplearning-termico/classificador-termico/treinamento"
+  ],
+  "source_directories": [
+    "."
+  ]
+}

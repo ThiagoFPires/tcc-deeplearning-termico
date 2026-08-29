@@ -1,0 +1,15 @@
+{
+    "acuracia": 0.9062,
+    "sensibilidade": 0.9286,
+    "especificidade": 0.875,
+    "precisao": 0.9123,
+    "f1_score": 0.9204,
+    "auc_roc": 0.9555,
+    "matriz_confusao": {
+        "tn": 175,
+        "fp": 25,
+        "fn": 20,
+        "tp": 260
+    },
+    "loss": 0.2869
+}

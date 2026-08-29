@@ -1,0 +1,765 @@
+{
+    "treino": {
+        "pacientes": [
+            {
+                "id": "137",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "129",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "272",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "11",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "66",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "173",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "704",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "42",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "705",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "57",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "89",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "166",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "55",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "225",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "224",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "220",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "64",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "152",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "28",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "707",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "62",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "49",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "239",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "68",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "10",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "216",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "106",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "701",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "51",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "41",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "219",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "98",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "149",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "217",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "171",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "99",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "188",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "131",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "60",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "163",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "226",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "703",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "50",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "330",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "283",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "318",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "345",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "344",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "257",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "342",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "316",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "204",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "356",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "381",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "261",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "400",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "271",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "350",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "245",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "270",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "192",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "258",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "328",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "209",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "394",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "203",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "371",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "319",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "410",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "425",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "368",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "343",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "361",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "346",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "424",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "256",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "397",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "277",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "338",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "384",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "374",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "355",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "409",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "373",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "286",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "415",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "376",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "385",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "407",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "320",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "281",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "156",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "365",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "266",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "180",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "269",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "413",
+                "classe": 1,
+                "qtd_imagens": 19
+            },
+            {
+                "id": "402",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "263",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "378",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "398",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "246",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "363",
+                "classe": 1,
+                "qtd_imagens": 20
+            }
+        ],
+        "rotulos": [],
+        "total_imagens": 2059
+    },
+    "validacao": {
+        "pacientes": [
+            {
+                "id": "1",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "9",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "706",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "115",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "7",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "161",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "26",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "38",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "168",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "386",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "337",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "267",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "389",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "278",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "369",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "202",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "240",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "259",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "422",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "418",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "401",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "236",
+                "classe": 1,
+                "qtd_imagens": 20
+            }
+        ],
+        "rotulos": [],
+        "total_imagens": 440
+    },
+    "teste": {
+        "pacientes": [
+            {
+                "id": "702",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "700",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "141",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "708",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "222",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "108",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "87",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "162",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "40",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "170",
+                "classe": 0,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "198",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "412",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "393",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "282",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "408",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "387",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "312",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "411",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "366",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "210",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "144",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "241",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "390",
+                "classe": 1,
+                "qtd_imagens": 20
+            },
+            {
+                "id": "274",
+                "classe": 1,
+                "qtd_imagens": 20
+            }
+        ],
+        "rotulos": [],
+        "total_imagens": 480
+    }
+}

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThermoScan AI | Classificação e Explicabilidade em Termografia Mamária</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Background Glow Elements -->
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="brand">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                        <circle cx="12" cy="12" r="10" stroke-width="1.5" stroke-dasharray="2 2"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="app-title">ThermoScan <span class="gradient-text">AI</span></h1>
+                    <p class="app-subtitle">Diagnóstico & Explicabilidade Visual (Grad-CAM) em Termografia Mamária</p>
+                </div>
+            </div>
+
+            <div class="header-badges">
+                <div class="badge badge-gpu" id="status-gpu">
+                    <span class="status-dot"></span>
+                    <span id="gpu-name">RTX 5060 (CUDA 12.8)</span>
+                </div>
+                <div class="badge badge-model">EfficientNet-B0</div>
+                <div class="badge badge-metric">95.0% Sensibilidade</div>
+            </div>
+        </header>
+
+        <!-- Metrics Overview Row -->
+        <section class="metrics-summary">
+            <div class="metric-card">
+                <span class="metric-label">Acurácia no Teste</span>
+                <span class="metric-value text-cyan">93.54%</span>
+                <span class="metric-desc">Dados inéditos (24 pacientes)</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Sensibilidade (Recall)</span>
+                <span class="metric-value text-emerald">95.00%</span>
+                <span class="metric-desc">Detecção de patologias</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Especificidade</span>
+                <span class="metric-value text-blue">91.50%</span>
+                <span class="metric-desc">Confirmação de saudáveis</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">AUC-ROC</span>
+                <span class="metric-value text-purple">0.9865</span>
+                <span class="metric-desc">Poder discriminativo</span>
+            </div>
+        </section>
+
+        <!-- Main Workspace Grid -->
+        <main class="main-grid">
+            <!-- Left Column: Upload & Controls -->
+            <section class="panel upload-panel">
+                <div class="panel-header">
+                    <h2>1. Entrada do Termograma</h2>
+                    <span class="step-tag">Upload</span>
+                </div>
+
+                <div class="drop-zone" id="drop-zone">
+                    <input type="file" id="file-input" accept="image/jpeg,image/png,image/jpg" hidden>
+                    <div class="drop-zone-content" id="drop-zone-prompt">
+                        <div class="upload-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                            </svg>
+                        </div>
+                        <h3>Arraste o termograma aqui</h3>
+                        <p>ou clique para selecionar do computador</p>
+                        <span class="file-hint">Formatos suportados: JPG, PNG (224x224 ideal)</span>
+                    </div>
+
+                    <div class="preview-container hidden" id="preview-container">
+                        <img id="image-preview" src="" alt="Prévia do Termograma">
+                        <button class="btn-remove" id="btn-remove" title="Remover imagem">&times;</button>
+                    </div>
+                </div>
+
+                <!-- Action Button -->
+                <button class="btn-primary" id="btn-analisar" disabled>
+                    <span class="btn-text">Executar Diagnóstico com IA</span>
+                    <span class="spinner hidden" id="btn-spinner"></span>
+                </button>
+
+                <!-- Sample Presets for Quick Testing -->
+                <div class="samples-section">
+                    <span class="samples-title">Ou teste com amostras do dataset:</span>
+                    <div class="samples-grid">
+                        <button class="sample-btn" id="sample-saudavel-1">
+                            <span class="sample-icon">🟢</span>
+                            <span>Paciente #1 (Saudável)</span>
+                        </button>
+                        <button class="sample-btn" id="sample-saudavel-2">
+                            <span class="sample-icon">🟢</span>
+                            <span>Paciente #7 (Saudável)</span>
+                        </button>
+                        <button class="sample-btn" id="sample-doente-1">
+                            <span class="sample-icon">🔴</span>
+                            <span>Paciente #144 (Doente)</span>
+                        </button>
+                        <button class="sample-btn" id="sample-doente-2">
+                            <span class="sample-icon">🔴</span>
+                            <span>Paciente #425 (Doente)</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Column: Results & Grad-CAM -->
+            <section class="panel results-panel">
+                <div class="panel-header">
+                    <h2>2. Diagnóstico & Explicabilidade</h2>
+                    <span class="step-tag" id="inference-time-tag">Aguardando exame</span>
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-state" id="empty-state">
+                    <div class="empty-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                            <path d="M21 15l-5-5L5 21"/>
+                        </svg>
+                    </div>
+                    <h3>Nenhum exame analisado ainda</h3>
+                    <p>Faça upload de um termograma mamário à esquerda para visualizar a predição da rede neural e o mapa de calor Grad-CAM.</p>
+                </div>
+
+                <!-- Loading State -->
+                <div class="loading-state hidden" id="loading-state">
+                    <div class="pulse-ring"></div>
+                    <h3>Processando Tensores na RTX 5060...</h3>
+                    <p>Calculando ativações convolucionais e mapa de calor Grad-CAM</p>
+                </div>
+
+                <!-- Results Content -->
+                <div class="results-content hidden" id="results-content">
+                    <!-- Diagnostic Banner Card -->
+                    <div class="diagnosis-banner" id="diagnosis-banner">
+                        <div class="diagnosis-info">
+                            <span class="diagnosis-badge" id="diagnosis-badge">SAUDÁVEL</span>
+                            <h3 class="diagnosis-title" id="diagnosis-title">Sem Anomalias Térmicas Detectadas</h3>
+                            <p class="diagnosis-desc" id="diagnosis-desc">Distribuição de temperatura simétrica compatível com padrão fisiológico normal.</p>
+                        </div>
+                        <div class="confidence-circle" id="confidence-circle">
+                            <span class="confidence-val" id="confidence-val">96.4%</span>
+                            <span class="confidence-label">Confiança</span>
+                        </div>
+                    </div>
+
+                    <!-- Side-by-Side Images -->
+                    <div class="images-comparison">
+                        <div class="img-box">
+                            <span class="img-box-label">Termograma Original</span>
+                            <div class="img-wrapper">
+                                <img id="res-original" src="" alt="Termograma Original">
+                            </div>
+                        </div>
+                        <div class="img-box">
+                            <span class="img-box-label">Grad-CAM (Atenção da IA)</span>
+                            <div class="img-wrapper">
+                                <img id="res-gradcam" src="" alt="Mapa de Calor Grad-CAM">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Probabilities Bar Breakdown -->
+                    <div class="probabilities-box">
+                        <h4>Distribuição de Probabilidades do Classificador</h4>
+                        
+                        <div class="prob-row">
+                            <div class="prob-header">
+                                <span>🟢 Classe 0: Saudável</span>
+                                <span id="prob-saudavel-val">96.4%</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill fill-green" id="prob-saudavel-bar" style="width: 96.4%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="prob-row">
+                            <div class="prob-header">
+                                <span>🔴 Classe 1: Anomalia Térmica (Doente)</span>
+                                <span id="prob-doente-val">3.6%</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill fill-red" id="prob-doente-bar" style="width: 3.6%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Clinical Interpretation & Explainability Note -->
+                    <div class="clinical-note">
+                        <div class="note-icon">💡</div>
+                        <div class="note-text">
+                            <strong>Interpretação do Grad-CAM:</strong>
+                            <span id="gradcam-explanation">O mapa de calor destaca as regiões que mais influenciaram a decisão da EfficientNet-B0. Regiões em vermelho/amarelo representam focos de maior ativação neural (gradiente térmico assimétrico).</span>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="results-actions">
+                        <button class="btn-secondary" onclick="window.print()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                                <path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z"/>
+                            </svg>
+                            Imprimir Relatório Clínico
+                        </button>
+                        <button class="btn-secondary" id="btn-nova-analise">Nova Análise</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>Trabalho de Conclusão de Curso (TCC) — Diagnóstico Assistido por Computador (CADe) em Mastologia Térmica</p>
+            <p class="footer-meta">Dataset: DMR-IR | Arquiteturas: EfficientNet-B0 vs ResNet-50 | Hardware: NVIDIA GeForce RTX 5060</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

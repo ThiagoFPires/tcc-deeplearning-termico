@@ -1,0 +1,13 @@
+{
+    "python.defaultInterpreterPath": "C:/Users/abcdt/Documents/tcc-deeplearning-termico/classificador-termico/venv/Scripts/python.exe",
+    "python.analysis.extraPaths": [
+        "C:/Users/abcdt/Documents/tcc-deeplearning-termico/classificador-termico/treinamento",
+        "C:/Users/abcdt/Documents/tcc-deeplearning-termico/classificador-termico/venv/Lib/site-packages"
+    ],
+    "python.autoComplete.extraPaths": [
+        "C:/Users/abcdt/Documents/tcc-deeplearning-termico/classificador-termico/treinamento",
+        "C:/Users/abcdt/Documents/tcc-deeplearning-termico/classificador-termico/venv/Lib/site-packages"
+    ],
+    "python.terminal.activateEnvironment": true,
+    "python.analysis.typeCheckingMode": "off"
+}

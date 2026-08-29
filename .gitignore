@@ -1,0 +1,32 @@
+# Python Virtual Environment (CRÍTICO: não versionar)
+venv/
+env/
+ENV/
+.venv/
+
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Pesos de Modelos / Checkpoints pesados (GitHub tem limite de 100MB)
+*.pth
+*.pt
+*.h5
+*.onnx
+*.bin
+
+# IDEs e configurações locais
+.vscode/*
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# Antigravity IDE / Gemini
+.gemini/
+
+# Logs e arquivos temporários
+*.log
+*.tmp
