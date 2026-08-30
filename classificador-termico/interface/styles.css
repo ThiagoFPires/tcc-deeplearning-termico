@@ -705,7 +705,7 @@ body {
 .view-results {
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 14px;
     animation: fadeIn 0.25s ease-out;
 }
 
@@ -713,6 +713,98 @@ body {
     from { opacity: 0; transform: translateY(4px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+/* PACS Zoom & Pan Toolbar */
+.pacs-zoom-toolbar {
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 6px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+}
+
+.zoom-tool-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.zoom-tool-info svg {
+    color: var(--brand-accent);
+}
+
+.zoom-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-zoom-action {
+    background: var(--bg-card-elevated);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    width: 26px;
+    height: 26px;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-fast);
+}
+
+.btn-zoom-action:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--brand-accent);
+}
+
+.btn-zoom-reset {
+    width: auto;
+    padding: 0 10px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.zoom-factor-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--brand-accent);
+    min-width: 42px;
+    text-align: center;
+}
+
+/* PACS Viewports */
+.pacs-viewport {
+    overflow: hidden;
+    position: relative;
+    user-select: none;
+    cursor: default;
+}
+
+.pacs-viewport.is-zoomed {
+    cursor: grab;
+}
+
+.pacs-viewport.is-dragging {
+    cursor: grabbing !important;
+}
+
+.zoomable-img {
+    transform-origin: center center;
+    transition: transform 0.04s ease-out;
+    will-change: transform;
+    pointer-events: none;
+}
+
 
 /* Mode 1: Side by Side */
 .view-mode-side {

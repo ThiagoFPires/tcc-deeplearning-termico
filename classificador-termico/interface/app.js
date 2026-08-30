@@ -1,5 +1,5 @@
 // ==========================================================================
-// ThermoScan AI — Clinical Workstation with Dynamic Session Worklist (v2.2)
+// DeepVision CADe — Medical Diagnostic Workstation Logic with PACS Zoom (v2.2)
 // ==========================================================================
 
 const API_BASE_URL = 'http://127.0.0.1:8000';
@@ -9,9 +9,17 @@ let modeloSelecionado = 'efficientnet_b0';
 let paletaSelecionada = 'jet';
 let resultadoAtual = null;
 
-// Dynamic Session Worklist Array (In-Memory / Volatile)
+// Dynamic Session Worklist Array (In-Memory)
 const examesSessao = [];
 let exameSessaoAtivoId = null;
+
+// PACS Zoom & Pan Engine State
+let zoomLevel = 1.0;
+let panX = 0;
+let panY = 0;
+let isPanning = false;
+let startPanX = 0;
+let startPanY = 0;
 
 // DOM Elements - Header
 const statusLabel = document.getElementById('status-label');
@@ -47,6 +55,14 @@ const viewEmpty = document.getElementById('view-empty');
 const viewLoading = document.getElementById('view-loading');
 const loadingStatusText = document.getElementById('loading-status-text');
 const viewResults = document.getElementById('view-results');
+
+// PACS Zoom Toolbar Elements
+const btnZoomIn = document.getElementById('btn-zoom-in');
+const btnZoomOut = document.getElementById('btn-zoom-out');
+const btnZoomReset = document.getElementById('btn-zoom-reset');
+const zoomFactorLabel = document.getElementById('zoom-factor-label');
+const pacsViewports = document.querySelectorAll('.pacs-viewport');
+const zoomableImages = document.querySelectorAll('.zoomable-img');
 
 // Images & Sliders
 const resOrigImg = document.getElementById('res-orig-img');
@@ -130,6 +146,7 @@ tabSide.addEventListener('click', () => {
     } else {
         viewEmpty.classList.remove('hidden');
     }
+    resetarZoom();
 });
 
 tabBlend.addEventListener('click', () => {
@@ -142,6 +159,7 @@ tabBlend.addEventListener('click', () => {
     } else {
         viewEmpty.classList.remove('hidden');
     }
+    resetarZoom();
 });
 
 tabHistory.addEventListener('click', () => {
@@ -236,6 +254,7 @@ function limparUploadAtual() {
     viewEmpty.classList.remove('hidden');
     ativarTab(tabSide);
     runtimeBadge.textContent = 'Aguardando exame';
+    resetarZoom();
     atualizarDestaqueSessao();
 }
 
@@ -280,6 +299,7 @@ async function processarDiagnostico() {
         adicionarExameSessao(arquivoSelecionado.name, imagePreview.src, data);
 
         // Renderiza laudo na tela
+        resetarZoom();
         renderizarLaudo(data, imagePreview.src);
 
     } catch (error) {
@@ -304,7 +324,7 @@ function adicionarExameSessao(nomeArquivo, previewSrc, dadosResultado) {
         timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
     };
 
-    examesSessao.unshift(novoExame); // Insere no topo
+    examesSessao.unshift(novoExame); // Insere no topo da lista
     exameSessaoAtivoId = novoExame.id;
     renderizarListaSessao();
 }
@@ -364,6 +384,7 @@ window.carregarExameSessao = function(id) {
     dropzoneIdle.classList.add('hidden');
     dropzonePreview.classList.remove('hidden');
 
+    resetarZoom();
     atualizarDestaqueSessao();
     renderizarLaudo(exame.dadosResultado, exame.previewSrc);
 };
@@ -435,7 +456,102 @@ function renderizarLaudo(data, previewSrc) {
 }
 
 // ==========================================================================
-// 8. History Database Management (SQLite)
+// 8. PACS Interactive Zoom & Synchronized Pan Engine
+// ==========================================================================
+function aplicarTransformacaoZoom() {
+    zoomFactorLabel.textContent = `${Math.round(zoomLevel * 100)}%`;
+
+    const transStr = `translate(${panX}px, ${panY}px) scale(${zoomLevel})`;
+
+    document.querySelectorAll('.zoomable-img').forEach(img => {
+        img.style.transform = transStr;
+    });
+
+    document.querySelectorAll('.pacs-viewport').forEach(vp => {
+        if (zoomLevel > 1.01) {
+            vp.classList.add('is-zoomed');
+        } else {
+            vp.classList.remove('is-zoomed');
+            vp.classList.remove('is-dragging');
+        }
+    });
+}
+
+function ajustarZoom(delta) {
+    zoomLevel = Math.max(1.0, Math.min(5.0, zoomLevel + delta));
+    if (zoomLevel <= 1.01) {
+        panX = 0;
+        panY = 0;
+    }
+    aplicarTransformacaoZoom();
+}
+
+function resetarZoom() {
+    zoomLevel = 1.0;
+    panX = 0;
+    panY = 0;
+    isPanning = false;
+    aplicarTransformacaoZoom();
+}
+
+btnZoomIn.addEventListener('click', () => ajustarZoom(0.25));
+btnZoomOut.addEventListener('click', () => ajustarZoom(-0.25));
+btnZoomReset.addEventListener('click', () => resetarZoom());
+
+// Mouse Wheel Zoom & Drag Panning on PACS Viewports
+document.querySelectorAll('.pacs-viewport').forEach(vp => {
+    // Wheel Zoom
+    vp.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const delta = e.deltaY < 0 ? 0.2 : -0.2;
+        ajustarZoom(delta);
+    }, { passive: false });
+
+    // Double Click to Reset / Quick 2x Zoom
+    vp.addEventListener('dblclick', () => {
+        if (zoomLevel > 1.01) {
+            resetarZoom();
+        } else {
+            zoomLevel = 2.0;
+            aplicarTransformacaoZoom();
+        }
+    });
+
+    // Pan (Drag) Start
+    vp.addEventListener('mousedown', (e) => {
+        if (zoomLevel > 1.01) {
+            isPanning = true;
+            startPanX = e.clientX - panX;
+            startPanY = e.clientY - panY;
+            vp.classList.add('is-dragging');
+        }
+    });
+});
+
+window.addEventListener('mousemove', (e) => {
+    if (!isPanning) return;
+    panX = e.clientX - startPanX;
+    panY = e.clientY - startPanY;
+
+    // Constrain Pan limits based on zoom level
+    const maxPan = 140 * (zoomLevel - 1.0);
+    panX = Math.max(-maxPan, Math.min(maxPan, panX));
+    panY = Math.max(-maxPan, Math.min(maxPan, panY));
+
+    aplicarTransformacaoZoom();
+});
+
+window.addEventListener('mouseup', () => {
+    if (isPanning) {
+        isPanning = false;
+        document.querySelectorAll('.pacs-viewport').forEach(vp => {
+            vp.classList.remove('is-dragging');
+        });
+    }
+});
+
+// ==========================================================================
+// 9. History Database Management (SQLite)
 // ==========================================================================
 btnRefreshHistory.addEventListener('click', () => carregarHistorico());
 
