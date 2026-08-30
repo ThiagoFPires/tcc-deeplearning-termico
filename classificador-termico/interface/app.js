@@ -1,10 +1,10 @@
 // ==========================================================================
-// DeepVision CADe — Medical Diagnostic Workstation Logic with PACS Zoom (v2.2)
+// DeepVision CADe — Medical Diagnostic Workstation with Batch Upload & PACS (v2.3)
 // ==========================================================================
 
 const API_BASE_URL = 'http://127.0.0.1:8000';
 
-let arquivoSelecionado = null;
+let arquivosSelecionados = [];
 let modeloSelecionado = 'efficientnet_b0';
 let paletaSelecionada = 'jet';
 let resultadoAtual = null;
@@ -33,8 +33,15 @@ const dropzoneIdle = document.getElementById('dropzone-idle');
 const dropzonePreview = document.getElementById('dropzone-preview');
 const imagePreview = document.getElementById('image-preview');
 const btnRemovePreview = document.getElementById('btn-remove-preview');
+const dropzoneMultiPreview = document.getElementById('dropzone-multi-preview');
+const multiPreviewCount = document.getElementById('multi-preview-count');
+const multiThumbGrid = document.getElementById('multi-thumb-grid');
+const btnRemoveMultiPreview = document.getElementById('btn-remove-multi-preview');
+
 const btnExecute = document.getElementById('btn-execute');
+const btnExecuteText = document.getElementById('btn-execute-text');
 const spinnerWheel = document.getElementById('spinner-wheel');
+const uploadModePill = document.getElementById('upload-mode-pill');
 
 // DOM Elements - Session Worklist
 const sessionList = document.getElementById('session-list');
@@ -53,6 +60,7 @@ const runtimeBadge = document.getElementById('runtime-badge');
 
 const viewEmpty = document.getElementById('view-empty');
 const viewLoading = document.getElementById('view-loading');
+const loadingTitle = document.getElementById('loading-title');
 const loadingStatusText = document.getElementById('loading-status-text');
 const viewResults = document.getElementById('view-results');
 
@@ -84,11 +92,13 @@ const probValSick = document.getElementById('prob-val-sick');
 const barSick = document.getElementById('bar-sick');
 const noteExplanationText = document.getElementById('note-explanation-text');
 const btnResetExam = document.getElementById('btn-reset-exam');
+const btnDownloadGradcam = document.getElementById('btn-download-gradcam');
 
 // History Table (SQLite)
 const historyTbody = document.getElementById('history-tbody');
 const btnRefreshHistory = document.getElementById('btn-refresh-history');
 const btnClearHistory = document.getElementById('btn-clear-history');
+const btnExportCsv = document.getElementById('btn-export-csv');
 
 // ==========================================================================
 // 1. Initialization
@@ -115,7 +125,7 @@ switchButtons.forEach(btn => {
         btn.classList.add('active');
         modeloSelecionado = btn.getAttribute('data-model');
         
-        if (arquivoSelecionado && resultadoAtual) {
+        if (arquivosSelecionados.length === 1 && resultadoAtual) {
             processarDiagnostico();
         }
     });
@@ -127,7 +137,7 @@ cmapChoices.forEach(btn => {
         btn.classList.add('active');
         paletaSelecionada = btn.getAttribute('data-cmap');
 
-        if (arquivoSelecionado && resultadoAtual) {
+        if (arquivosSelecionados.length === 1 && resultadoAtual) {
             processarDiagnostico();
         }
     });
@@ -183,17 +193,17 @@ blendSlider.addEventListener('input', (e) => {
 });
 
 // ==========================================================================
-// 4. Drag & Drop and File Selection Handlers
+// 4. Single & Batch File Selection Handlers
 // ==========================================================================
 dropZone.addEventListener('click', () => {
-    if (!arquivoSelecionado) {
+    if (arquivosSelecionados.length === 0) {
         fileInput.click();
     }
 });
 
 fileInput.addEventListener('change', (e) => {
-    if (e.target.files.length > 0) {
-        selecionarArquivo(e.target.files[0]);
+    if (e.target.files && e.target.files.length > 0) {
+        tratarArquivosSelecionados(Array.from(e.target.files));
     }
 });
 
@@ -209,8 +219,8 @@ dropZone.addEventListener('dragleave', () => {
 dropZone.addEventListener('drop', (e) => {
     e.preventDefault();
     dropZone.classList.remove('drag-active');
-    if (e.dataTransfer.files.length > 0) {
-        selecionarArquivo(e.dataTransfer.files[0]);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        tratarArquivosSelecionados(Array.from(e.dataTransfer.files));
     }
 });
 
@@ -219,35 +229,84 @@ btnRemovePreview.addEventListener('click', (e) => {
     limparUploadAtual();
 });
 
+btnRemoveMultiPreview.addEventListener('click', (e) => {
+    e.stopPropagation();
+    limparUploadAtual();
+});
+
 btnResetExam.addEventListener('click', () => {
     limparUploadAtual();
 });
 
-function selecionarArquivo(file) {
-    if (!file.type.match('image.*')) {
-        alert('Por favor, envie um arquivo de imagem válido (JPG, PNG ou BMP).');
+function tratarArquivosSelecionados(listaArquivos) {
+    const imagensValidas = listaArquivos.filter(f => f.type.match('image.*') || f.name.match(/\.(jpg|jpeg|png|bmp)$/i));
+    if (imagensValidas.length === 0) {
+        alert('Por favor, envie arquivos de imagem válidos (JPG, PNG ou BMP).');
         return;
     }
-    arquivoSelecionado = file;
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        imagePreview.src = e.target.result;
-        dropzoneIdle.classList.add('hidden');
+    arquivosSelecionados = imagensValidas;
+    dropzoneIdle.classList.add('hidden');
+
+    if (arquivosSelecionados.length === 1) {
+        // Modo Individual
+        uploadModePill.textContent = '1 Exame';
+        btnExecuteText.textContent = 'Processar Exame Clínico';
+        dropzoneMultiPreview.classList.add('hidden');
         dropzonePreview.classList.remove('hidden');
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            imagePreview.src = e.target.result;
+            btnExecute.disabled = false;
+        };
+        reader.readAsDataURL(arquivosSelecionados[0]);
+
+    } else {
+        // Modo em Lote (Múltiplas Imagens)
+        uploadModePill.textContent = `Lote (${arquivosSelecionados.length})`;
+        btnExecuteText.textContent = `Processar Lote de ${arquivosSelecionados.length} Exames`;
+        dropzonePreview.classList.add('hidden');
+        dropzoneMultiPreview.classList.remove('hidden');
+        multiPreviewCount.textContent = `${arquivosSelecionados.length} exames selecionados`;
+        multiThumbGrid.innerHTML = '';
+
+        const maxPreviews = Math.min(arquivosSelecionados.length, 7);
+        for (let i = 0; i < maxPreviews; i++) {
+            const file = arquivosSelecionados[i];
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = document.createElement('img');
+                img.className = 'multi-thumb-item';
+                img.src = e.target.result;
+                img.title = file.name;
+                multiThumbGrid.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        if (arquivosSelecionados.length > 7) {
+            const moreBadge = document.createElement('div');
+            moreBadge.className = 'multi-thumb-more';
+            moreBadge.textContent = `+${arquivosSelecionados.length - 7}`;
+            multiThumbGrid.appendChild(moreBadge);
+        }
+
         btnExecute.disabled = false;
-    };
-    reader.readAsDataURL(file);
+    }
 }
 
 function limparUploadAtual() {
-    arquivoSelecionado = null;
+    arquivosSelecionados = [];
     resultadoAtual = null;
     exameSessaoAtivoId = null;
     fileInput.value = '';
     imagePreview.src = '';
     dropzonePreview.classList.add('hidden');
+    dropzoneMultiPreview.classList.add('hidden');
     dropzoneIdle.classList.remove('hidden');
+    uploadModePill.textContent = 'Individual / Lote';
+    btnExecuteText.textContent = 'Processar Exame Clínico';
     btnExecute.disabled = true;
     viewResults.classList.add('hidden');
     viewHistory.classList.add('hidden');
@@ -259,14 +318,14 @@ function limparUploadAtual() {
 }
 
 // ==========================================================================
-// 5. Clinical Diagnostic Execution (GPU Backend)
+// 5. Clinical Diagnostic Execution (Single or Batch GPU Inference)
 // ==========================================================================
 btnExecute.addEventListener('click', () => {
     processarDiagnostico();
 });
 
 async function processarDiagnostico() {
-    if (!arquivoSelecionado) return;
+    if (arquivosSelecionados.length === 0) return;
 
     btnExecute.disabled = true;
     spinnerWheel.classList.remove('hidden');
@@ -274,33 +333,55 @@ async function processarDiagnostico() {
     viewResults.classList.add('hidden');
     viewHistory.classList.add('hidden');
     viewLoading.classList.remove('hidden');
-    loadingStatusText.textContent = `Executando inferência com ${modeloSelecionado.toUpperCase()} e paleta ${paletaSelecionada.toUpperCase()}...`;
 
-    const formData = new FormData();
-    formData.append('arquivo', arquivoSelecionado);
-    formData.append('modelo_escolhido', modeloSelecionado);
-    formData.append('paleta_cor', paletaSelecionada);
+    const total = arquivosSelecionados.length;
+    let ultimoResultado = null;
+    let ultimaPreviewSrc = null;
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/diagnosticar`, {
-            method: 'POST',
-            body: formData
-        });
+        for (let i = 0; i < total; i++) {
+            const file = arquivosSelecionados[i];
+            
+            if (total > 1) {
+                loadingTitle.textContent = `Processando Lote na GPU (${i + 1}/${total})...`;
+                loadingStatusText.textContent = `Analisando ${file.name} com ${modeloSelecionado.toUpperCase()}...`;
+            } else {
+                loadingTitle.textContent = 'Processando Imagem na GPU...';
+                loadingStatusText.textContent = `Executando inferência com ${modeloSelecionado.toUpperCase()} e paleta ${paletaSelecionada.toUpperCase()}...`;
+            }
 
-        if (!response.ok) {
-            const err = await response.json();
-            throw new Error(err.detail || 'Falha ao processar o exame');
+            const previewDataUrl = await lerArquivoDataURL(file);
+
+            const formData = new FormData();
+            formData.append('arquivo', file);
+            formData.append('modelo_escolhido', modeloSelecionado);
+            formData.append('paleta_cor', paletaSelecionada);
+
+            const response = await fetch(`${API_BASE_URL}/api/diagnosticar`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.detail || `Falha ao processar o exame ${file.name}`);
+            }
+
+            const data = await response.json();
+            ultimoResultado = data;
+            ultimaPreviewSrc = previewDataUrl;
+
+            // Adiciona exame à fila dinâmica da sessão
+            adicionarExameSessao(file.name, previewDataUrl, data);
         }
 
-        const data = await response.json();
-        resultadoAtual = data;
-        
-        // Adiciona à lista de exames da sessão atual
-        adicionarExameSessao(arquivoSelecionado.name, imagePreview.src, data);
-
-        // Renderiza laudo na tela
-        resetarZoom();
-        renderizarLaudo(data, imagePreview.src);
+        // Renderiza na tela o primeiro/último exame do lote
+        if (ultimoResultado && ultimaPreviewSrc) {
+            resultadoAtual = ultimoResultado;
+            imagePreview.src = ultimaPreviewSrc;
+            resetarZoom();
+            renderizarLaudo(ultimoResultado, ultimaPreviewSrc);
+        }
 
     } catch (error) {
         alert(`Erro na análise: ${error.message}\nCertifique-se de que o backend está em execução.`);
@@ -310,6 +391,15 @@ async function processarDiagnostico() {
         btnExecute.disabled = false;
         spinnerWheel.classList.add('hidden');
     }
+}
+
+function lerArquivoDataURL(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
 }
 
 // ==========================================================================
@@ -379,10 +469,8 @@ window.carregarExameSessao = function(id) {
     exameSessaoAtivoId = id;
     resultadoAtual = exame.dadosResultado;
 
-    // Atualiza preview no dropzone
+    // Atualiza preview
     imagePreview.src = exame.previewSrc;
-    dropzoneIdle.classList.add('hidden');
-    dropzonePreview.classList.remove('hidden');
 
     resetarZoom();
     atualizarDestaqueSessao();
@@ -420,7 +508,7 @@ function renderizarLaudo(data, previewSrc) {
     const isDoente = pred.classe_id === 1;
 
     // Badges & Meta
-    runtimeBadge.innerHTML = `Modelo: <strong>${data.modelo_utilizado}</strong> | Tempo: <strong>${data.tempo_ms} ms</strong>`;
+    runtimeBadge.innerHTML = `Arquivo: <strong>${data.arquivo}</strong> | Modelo: <strong>${data.modelo_utilizado}</strong> | Tempo: <strong>${data.tempo_ms} ms</strong>`;
     frameModelBadge.textContent = data.modelo_utilizado;
 
     // Images
@@ -454,6 +542,19 @@ function renderizarLaudo(data, previewSrc) {
     probValSick.textContent = `${pred.probabilidade_doente.toFixed(1)}%`;
     barSick.style.width = `${pred.probabilidade_doente}%`;
 }
+
+// Download Current Grad-CAM PNG
+btnDownloadGradcam.addEventListener('click', () => {
+    if (!resultadoAtual || !resultadoAtual.gradcam_overlay_base64) return;
+
+    const link = document.createElement('a');
+    link.href = resultadoAtual.gradcam_overlay_base64;
+    const nomeBase = (resultadoAtual.arquivo || 'exame').replace(/\.[^/.]+$/, '');
+    link.download = `GradCAM_${nomeBase}_${modeloSelecionado}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+});
 
 // ==========================================================================
 // 8. PACS Interactive Zoom & Synchronized Pan Engine
@@ -551,7 +652,7 @@ window.addEventListener('mouseup', () => {
 });
 
 // ==========================================================================
-// 9. History Database Management (SQLite)
+// 9. History Database Management (SQLite) & CSV Export
 // ==========================================================================
 btnRefreshHistory.addEventListener('click', () => carregarHistorico());
 
@@ -563,6 +664,49 @@ btnClearHistory.addEventListener('click', async () => {
         } catch (e) {
             console.error('Erro ao limpar histórico:', e);
         }
+    }
+});
+
+btnExportCsv.addEventListener('click', async () => {
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/historico`);
+        if (!res.ok) throw new Error('Falha ao obter histórico');
+        const data = await res.json();
+        const lista = data.historico || [];
+
+        if (lista.length === 0) {
+            alert('Não há registros para exportar no momento.');
+            return;
+        }
+
+        // Gera CSV com separador ponto-e-vírgula e UTF-8 BOM
+        const cabecalho = ['ID', 'Data/Hora', 'Nome do Arquivo', 'Modelo de IA', 'Diagnostico', 'Confiança (%)', 'Prob. Saudável (%)', 'Prob. Doente (%)', 'Tempo Inferência (ms)'];
+        const linhas = lista.map(item => [
+            item.id,
+            `"${item.data_hora}"`,
+            `"${item.nome_arquivo}"`,
+            `"${item.modelo_utilizado}"`,
+            `"${item.diagnostico}"`,
+            item.confianca.toFixed(2),
+            item.prob_saudavel.toFixed(2),
+            item.prob_doente.toFixed(2),
+            item.tempo_ms
+        ]);
+
+        const conteudoCsv = '\uFEFF' + [cabecalho.join(';'), ...linhas.map(l => l.join(';'))].join('\r\n');
+        const blob = new Blob([conteudoCsv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `DeepVision_Historico_Exames_${new Date().toISOString().slice(0,10)}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+    } catch (e) {
+        alert('Erro ao exportar CSV: ' + e.message);
     }
 });
 

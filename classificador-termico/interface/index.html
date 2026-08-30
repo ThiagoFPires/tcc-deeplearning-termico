@@ -60,25 +60,37 @@
                 <div class="card-box">
                     <div class="card-title-row">
                         <h3>1. Entrada do Exame</h3>
-                        <span class="pill-info">Termograma</span>
+                        <span class="pill-info" id="upload-mode-pill">Individual / Lote</span>
                     </div>
 
                     <div class="dropzone" id="drop-zone">
-                        <input type="file" id="file-input" accept="image/jpeg,image/png,image/jpg" hidden>
+                        <input type="file" id="file-input" accept="image/jpeg,image/png,image/jpg" multiple hidden>
+                        
+                        <!-- State 1: Idle -->
                         <div class="dropzone-idle" id="dropzone-idle">
                             <div class="upload-icon-circle">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
                                 </svg>
                             </div>
-                            <p class="dropzone-title">Carregar Termograma Mamário</p>
-                            <p class="dropzone-sub">Arraste a imagem ou clique para procurar</p>
+                            <p class="dropzone-title">Carregar Termograma(s)</p>
+                            <p class="dropzone-sub">Arraste 1 ou várias imagens simultaneamente</p>
                             <span class="dropzone-format">Formatos aceitos: JPG, PNG ou BMP (224x224)</span>
                         </div>
 
+                        <!-- State 2: Single Preview -->
                         <div class="dropzone-preview hidden" id="dropzone-preview">
                             <img id="image-preview" src="" alt="Prévia do Exame">
                             <button class="btn-remove-preview" id="btn-remove-preview" title="Remover imagem">&times;</button>
+                        </div>
+
+                        <!-- State 3: Multi-File Batch Preview -->
+                        <div class="dropzone-multi-preview hidden" id="dropzone-multi-preview">
+                            <div class="multi-preview-header">
+                                <span id="multi-preview-count">3 imagens selecionadas</span>
+                                <button class="btn-remove-preview-sm" id="btn-remove-multi-preview" title="Remover lote">&times;</button>
+                            </div>
+                            <div class="multi-thumb-grid" id="multi-thumb-grid"></div>
                         </div>
                     </div>
 
@@ -108,7 +120,7 @@
                                 <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
                             </svg>
                         </span>
-                        <span class="btn-text">Processar Exame Clínico</span>
+                        <span class="btn-text" id="btn-execute-text">Processar Exame Clínico</span>
                         <span class="spinner-wheel hidden" id="spinner-wheel"></span>
                     </button>
                 </div>
@@ -162,13 +174,13 @@
                             </svg>
                         </div>
                         <h4>Nenhum Exame Selecionado</h4>
-                        <p>Faça o envio de um termograma mamário na área à esquerda para iniciar a avaliação computacional assistida.</p>
+                        <p>Faça o envio de um ou múltiplos termogramas mamários na área à esquerda para iniciar a avaliação computacional assistida.</p>
                     </div>
 
-                    <!-- State 2: Loading -->
+                    <!-- State 2: Loading / Batch Processing -->
                     <div class="view-loading hidden" id="view-loading">
                         <div class="spinner-large"></div>
-                        <h4>Processando Imagem na GPU...</h4>
+                        <h4 id="loading-title">Processando Imagem na GPU...</h4>
                         <p id="loading-status-text">Executando inferência e gerando gradientes de atenção Grad-CAM</p>
                     </div>
 
@@ -300,8 +312,14 @@
                                 </div>
                             </div>
 
-                            <!-- Action Bar -->
+                            <!-- Action Bar with Download & Reset -->
                             <div class="report-bottom-actions">
+                                <button class="btn-secondary" id="btn-download-gradcam" title="Baixar imagem com mapa de calor em PNG">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                                    </svg>
+                                    Baixar Grad-CAM (PNG)
+                                </button>
                                 <button class="btn-secondary" id="btn-reset-exam">Novo Exame</button>
                             </div>
                         </div>
@@ -315,6 +333,12 @@
                                 <p class="history-sub">Registros permanentes salvos no banco de dados SQLite</p>
                             </div>
                             <div class="history-actions">
+                                <button class="btn-sec-sm" id="btn-export-csv" title="Exportar histórico em planilha CSV">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" style="vertical-align: middle; margin-right: 2px;">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                                    </svg>
+                                    Exportar CSV
+                                </button>
                                 <button class="btn-sec-sm" id="btn-refresh-history">Atualizar</button>
                                 <button class="btn-sec-sm btn-danger-sm" id="btn-clear-history">Limpar Banco</button>
                             </div>
