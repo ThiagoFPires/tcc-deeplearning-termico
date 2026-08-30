@@ -10,4 +10,6 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
     volumes:
-      - ./classificador-termico/api/historico_exames.db:/app/api/historico_exames.db
+      - ./classificador-termico/interface:/app/interface
+      - ./classificador-termico/api:/app/api
+      - ./classificador-termico/treinamento:/app/treinamento

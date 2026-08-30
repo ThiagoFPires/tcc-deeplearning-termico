@@ -595,6 +595,19 @@ body {
     text-transform: uppercase;
 }
 
+.session-badge.tag-healthy {
+    background: var(--status-healthy-bg);
+    color: #34D399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.session-badge.tag-alert {
+    background: var(--status-alert-bg);
+    color: #F87171;
+    border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+
 /* ==========================================================================
    Right Panel: Visualizer, Report Card & History
    ========================================================================== */
