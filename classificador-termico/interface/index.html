@@ -21,7 +21,7 @@
                     </svg>
                 </div>
                 <div class="brand-info">
-                    <h1 class="brand-name">ThermoScan <span class="badge-tag">CADe v2.1</span></h1>
+                    <h1 class="brand-name">ThermoScan <span class="badge-tag">CADe v2.2</span></h1>
                     <p class="brand-desc">Sistema de Apoio à Decisão Clínica em Mastologia Térmica</p>
                 </div>
             </div>
@@ -48,13 +48,13 @@
             <!-- Hardware & API Status -->
             <div class="system-status" id="system-status">
                 <span class="status-dot-pulse"></span>
-                <span class="status-label" id="status-label">RTX 5060 (CUDA Ativo)</span>
+                <span class="status-label" id="status-label">Sistema Online</span>
             </div>
         </header>
 
         <!-- Main Workspace -->
         <main class="workspace-grid">
-            <!-- Left Column: Acquisition & Controls -->
+            <!-- Left Column: Acquisition, Palette & Session Worklist -->
             <section class="panel-left">
                 <!-- Dropzone Card -->
                 <div class="card-box">
@@ -113,46 +113,30 @@
                     </button>
                 </div>
 
-                <!-- Quick Samples Card -->
-                <div class="card-box">
+                <!-- Dynamic Session Worklist Card (Starts Clean / Populates on Exam Upload) -->
+                <div class="card-box" id="session-worklist-card">
                     <div class="card-title-row">
-                        <h3>Casos Clínicos de Referência</h3>
-                        <span class="pill-info">DMR-IR</span>
+                        <h3>Exames da Sessão Atual</h3>
+                        <span class="pill-info" id="session-count-badge">0 exames</span>
                     </div>
-                    <div class="samples-list">
-                        <button class="sample-card sample-normal" id="sample-saudavel-1">
-                            <div class="sample-tag tag-healthy">Normal</div>
-                            <div class="sample-details">
-                                <strong>Paciente #01</strong>
-                                <span>Padrão Simétrico</span>
+                    <div class="session-list" id="session-list">
+                        <div class="session-empty" id="session-empty-msg">
+                            <div class="session-empty-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="24" height="24">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                    <polyline points="14 2 14 8 20 8"/>
+                                    <line x1="12" y1="18" x2="12" y2="12"/>
+                                    <line x1="9" y1="15" x2="15" y2="15"/>
+                                </svg>
                             </div>
-                        </button>
-                        <button class="sample-card sample-normal" id="sample-saudavel-2">
-                            <div class="sample-tag tag-healthy">Normal</div>
-                            <div class="sample-details">
-                                <strong>Paciente #10</strong>
-                                <span>Sem Alterações</span>
-                            </div>
-                        </button>
-                        <button class="sample-card sample-lesion" id="sample-doente-1">
-                            <div class="sample-tag tag-alert">Alteração</div>
-                            <div class="sample-details">
-                                <strong>Paciente #144</strong>
-                                <span>Foco Hiper-radiante</span>
-                            </div>
-                        </button>
-                        <button class="sample-card sample-lesion" id="sample-doente-2">
-                            <div class="sample-tag tag-alert">Alteração</div>
-                            <div class="sample-details">
-                                <strong>Paciente #156</strong>
-                                <span>Assimetria Vascular</span>
-                            </div>
-                        </button>
+                            <p>Nenhum exame analisado nesta sessão.</p>
+                            <span>Os exames processados aparecerão aqui para alternância rápida.</span>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Right Column: Visualizer & Diagnostic Report -->
+            <!-- Right Column: Visualizer, Diagnostic Report & History Database -->
             <section class="panel-right">
                 <!-- Viewer Card -->
                 <div class="card-box card-viewer">
@@ -161,7 +145,7 @@
                         <div class="viewer-tabs">
                             <button class="v-tab active" id="tab-side">Visão Lado a Lado</button>
                             <button class="v-tab" id="tab-blend">Sobreposição (Blend)</button>
-                            <button class="v-tab" id="tab-history">Histórico Clínico</button>
+                            <button class="v-tab" id="tab-history">Histórico Clínico (SQLite)</button>
                         </div>
                         <div class="runtime-badge" id="runtime-badge">
                             <span>Aguardando exame</span>
@@ -177,8 +161,8 @@
                                 <line x1="12" y1="17" x2="12" y2="21"/>
                             </svg>
                         </div>
-                        <h4>Nenhum Exame Processado</h4>
-                        <p>Faça o envio de um termograma mamário ou selecione um caso de referência à esquerda para iniciar a avaliação computacional.</p>
+                        <h4>Nenhum Exame Selecionado</h4>
+                        <p>Faça o envio de um termograma mamário na área à esquerda para iniciar a avaliação computacional assistida.</p>
                     </div>
 
                     <!-- State 2: Loading -->
@@ -304,12 +288,12 @@
                         </div>
                     </div>
 
-                    <!-- State 4: History Table View -->
+                    <!-- State 4: History Table View (SQLite) -->
                     <div class="view-history hidden" id="view-history">
                         <div class="history-header">
                             <div>
-                                <h4>Histórico de Exames Processados</h4>
-                                <p class="history-sub">Registros armazenados localmente no banco de dados SQLite</p>
+                                <h4>Histórico de Auditoria Clínica</h4>
+                                <p class="history-sub">Registros permanentes salvos no banco de dados SQLite</p>
                             </div>
                             <div class="history-actions">
                                 <button class="btn-sec-sm" id="btn-refresh-history">Atualizar</button>
@@ -327,12 +311,12 @@
                                         <th>Modelo</th>
                                         <th>Resultado</th>
                                         <th>Certeza</th>
-                                        <th>Tempo</th>
+                                        <th>Tempo (GPU)</th>
                                     </tr>
                                 </thead>
                                 <tbody id="history-tbody">
                                     <tr>
-                                        <td colspan="7" class="table-empty">Nenhum exame gravado ainda.</td>
+                                        <td colspan="7" class="table-empty">Nenhum exame gravado no banco ainda.</td>
                                     </tr>
                                 </tbody>
                             </table>

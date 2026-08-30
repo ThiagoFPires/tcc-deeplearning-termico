@@ -1,5 +1,5 @@
 // ==========================================================================
-// ThermoScan AI — Clean Application Logic with SQLite History (v2.2)
+// ThermoScan AI — Clinical Workstation with Dynamic Session Worklist (v2.2)
 // ==========================================================================
 
 const API_BASE_URL = 'http://127.0.0.1:8000';
@@ -7,8 +7,11 @@ const API_BASE_URL = 'http://127.0.0.1:8000';
 let arquivoSelecionado = null;
 let modeloSelecionado = 'efficientnet_b0';
 let paletaSelecionada = 'jet';
-let listaExemplos = [];
 let resultadoAtual = null;
+
+// Dynamic Session Worklist Array (In-Memory / Volatile)
+const examesSessao = [];
+let exameSessaoAtivoId = null;
 
 // DOM Elements - Header
 const statusLabel = document.getElementById('status-label');
@@ -25,11 +28,10 @@ const btnRemovePreview = document.getElementById('btn-remove-preview');
 const btnExecute = document.getElementById('btn-execute');
 const spinnerWheel = document.getElementById('spinner-wheel');
 
-// DOM Elements - Samples
-const sampleSaudavel1 = document.getElementById('sample-saudavel-1');
-const sampleSaudavel2 = document.getElementById('sample-saudavel-2');
-const sampleDoente1 = document.getElementById('sample-doente-1');
-const sampleDoente2 = document.getElementById('sample-doente-2');
+// DOM Elements - Session Worklist
+const sessionList = document.getElementById('session-list');
+const sessionEmptyMsg = document.getElementById('session-empty-msg');
+const sessionCountBadge = document.getElementById('session-count-badge');
 
 // DOM Elements - Viewer Tabs
 const tabSide = document.getElementById('tab-side');
@@ -67,7 +69,7 @@ const barSick = document.getElementById('bar-sick');
 const noteExplanationText = document.getElementById('note-explanation-text');
 const btnResetExam = document.getElementById('btn-reset-exam');
 
-// History Table
+// History Table (SQLite)
 const historyTbody = document.getElementById('history-tbody');
 const btnRefreshHistory = document.getElementById('btn-refresh-history');
 const btnClearHistory = document.getElementById('btn-clear-history');
@@ -80,21 +82,10 @@ async function inicializar() {
         const res = await fetch(`${API_BASE_URL}/`);
         if (res.ok) {
             const data = await res.json();
-            statusLabel.textContent = data.gpu !== 'N/A' ? `${data.gpu} (Ativo)` : 'CPU (Online)';
+            statusLabel.textContent = data.gpu !== 'N/A' ? `${data.gpu} (Ativo)` : 'Sistema Online';
         }
     } catch (e) {
-        statusLabel.textContent = 'API Offline (Inicie o Servidor)';
-    }
-
-    try {
-        const resEx = await fetch(`${API_BASE_URL}/api/exemplos`);
-        if (resEx.ok) {
-            const data = await resEx.json();
-            listaExemplos = data.exemplos || [];
-            configurarAmostras();
-        }
-    } catch (e) {
-        console.warn('Falha ao obter lista de exemplos:', e);
+        statusLabel.textContent = 'API Offline';
     }
 }
 inicializar();
@@ -127,7 +118,7 @@ cmapChoices.forEach(btn => {
 });
 
 // ==========================================================================
-// 3. Tab Switching
+// 3. Tab Navigation Handlers
 // ==========================================================================
 tabSide.addEventListener('click', () => {
     ativarTab(tabSide);
@@ -207,11 +198,11 @@ dropZone.addEventListener('drop', (e) => {
 
 btnRemovePreview.addEventListener('click', (e) => {
     e.stopPropagation();
-    limparExame();
+    limparUploadAtual();
 });
 
 btnResetExam.addEventListener('click', () => {
-    limparExame();
+    limparUploadAtual();
 });
 
 function selecionarArquivo(file) {
@@ -231,9 +222,10 @@ function selecionarArquivo(file) {
     reader.readAsDataURL(file);
 }
 
-function limparExame() {
+function limparUploadAtual() {
     arquivoSelecionado = null;
     resultadoAtual = null;
+    exameSessaoAtivoId = null;
     fileInput.value = '';
     imagePreview.src = '';
     dropzonePreview.classList.add('hidden');
@@ -244,34 +236,11 @@ function limparExame() {
     viewEmpty.classList.remove('hidden');
     ativarTab(tabSide);
     runtimeBadge.textContent = 'Aguardando exame';
+    atualizarDestaqueSessao();
 }
 
 // ==========================================================================
-// 5. Presets
-// ==========================================================================
-async function carregarAmostra(url, nome) {
-    try {
-        const res = await fetch(url);
-        const blob = await res.blob();
-        const file = new File([blob], nome, { type: blob.type || 'image/jpeg' });
-        selecionarArquivo(file);
-        setTimeout(() => processarDiagnostico(), 100);
-    } catch (e) {
-        console.error('Erro ao carregar amostra:', e);
-    }
-}
-
-function configurarAmostras() {
-    if (listaExemplos.length >= 4) {
-        sampleSaudavel1.onclick = () => carregarAmostra(`${API_BASE_URL}${listaExemplos[0].url}`, listaExemplos[0].arquivo);
-        sampleSaudavel2.onclick = () => carregarAmostra(`${API_BASE_URL}${listaExemplos[1].url}`, listaExemplos[1].arquivo);
-        sampleDoente1.onclick = () => carregarAmostra(`${API_BASE_URL}${listaExemplos[2].url}`, listaExemplos[2].arquivo);
-        sampleDoente2.onclick = () => carregarAmostra(`${API_BASE_URL}${listaExemplos[3].url}`, listaExemplos[3].arquivo);
-    }
-}
-
-// ==========================================================================
-// 6. Clinical Inference Execution
+// 5. Clinical Diagnostic Execution (GPU Backend)
 // ==========================================================================
 btnExecute.addEventListener('click', () => {
     processarDiagnostico();
@@ -306,10 +275,15 @@ async function processarDiagnostico() {
 
         const data = await response.json();
         resultadoAtual = data;
-        renderizarLaudo(data);
+        
+        // Adiciona à lista de exames da sessão atual
+        adicionarExameSessao(arquivoSelecionado.name, imagePreview.src, data);
+
+        // Renderiza laudo na tela
+        renderizarLaudo(data, imagePreview.src);
 
     } catch (error) {
-        alert(`Erro na análise: ${error.message}\nCertifique-se de que o backend FastAPI está em execução.`);
+        alert(`Erro na análise: ${error.message}\nCertifique-se de que o backend está em execução.`);
         viewLoading.classList.add('hidden');
         viewEmpty.classList.remove('hidden');
     } finally {
@@ -319,10 +293,98 @@ async function processarDiagnostico() {
 }
 
 // ==========================================================================
+// 6. Dynamic Session Worklist Management
+// ==========================================================================
+function adicionarExameSessao(nomeArquivo, previewSrc, dadosResultado) {
+    const novoExame = {
+        id: examesSessao.length + 1,
+        nomeArquivo: nomeArquivo,
+        previewSrc: previewSrc,
+        dadosResultado: dadosResultado,
+        timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+    };
+
+    examesSessao.unshift(novoExame); // Insere no topo
+    exameSessaoAtivoId = novoExame.id;
+    renderizarListaSessao();
+}
+
+function renderizarListaSessao() {
+    sessionCountBadge.textContent = `${examesSessao.length} ${examesSessao.length === 1 ? 'exame' : 'exames'}`;
+
+    if (examesSessao.length === 0) {
+        sessionList.innerHTML = `
+            <div class="session-empty" id="session-empty-msg">
+                <div class="session-empty-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="24" height="24">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="12" y1="18" x2="12" y2="12"/>
+                        <line x1="9" y1="15" x2="15" y2="15"/>
+                    </svg>
+                </div>
+                <p>Nenhum exame analisado nesta sessão.</p>
+                <span>Os exames processados aparecerão aqui para alternância rápida.</span>
+            </div>
+        `;
+        return;
+    }
+
+    sessionList.innerHTML = examesSessao.map(ex => {
+        const isDoente = ex.dadosResultado.predicao.classe_id === 1;
+        const tagClass = isDoente ? 'tag-alert' : 'tag-healthy';
+        const tagText = isDoente ? 'Alteração' : 'Normal';
+        const isActive = ex.id === exameSessaoAtivoId ? 'active' : '';
+
+        return `
+            <div class="session-item ${isActive}" onclick="carregarExameSessao(${ex.id})">
+                <img class="session-thumb" src="${ex.previewSrc}" alt="Miniatura">
+                <div class="session-info">
+                    <div class="session-name" title="${ex.nomeArquivo}">${ex.nomeArquivo}</div>
+                    <div class="session-meta">
+                        <span class="session-badge ${tagClass}">${tagText}</span>
+                        <span>${ex.dadosResultado.predicao.confianca_percentual.toFixed(1)}%</span>
+                        <span>• ${ex.timestamp}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+window.carregarExameSessao = function(id) {
+    const exame = examesSessao.find(e => e.id === id);
+    if (!exame) return;
+
+    exameSessaoAtivoId = id;
+    resultadoAtual = exame.dadosResultado;
+
+    // Atualiza preview no dropzone
+    imagePreview.src = exame.previewSrc;
+    dropzoneIdle.classList.add('hidden');
+    dropzonePreview.classList.remove('hidden');
+
+    atualizarDestaqueSessao();
+    renderizarLaudo(exame.dadosResultado, exame.previewSrc);
+};
+
+function atualizarDestaqueSessao() {
+    document.querySelectorAll('.session-item').forEach((el, idx) => {
+        if (examesSessao[idx] && examesSessao[idx].id === exameSessaoAtivoId) {
+            el.classList.add('active');
+        } else {
+            el.classList.remove('active');
+        }
+    });
+}
+
+// ==========================================================================
 // 7. Render Report to UI
 // ==========================================================================
-function renderizarLaudo(data) {
+function renderizarLaudo(data, previewSrc) {
     viewLoading.classList.add('hidden');
+    viewEmpty.classList.add('hidden');
+    viewHistory.classList.add('hidden');
     viewResults.classList.remove('hidden');
 
     if (tabBlend.classList.contains('active')) {
@@ -337,14 +399,14 @@ function renderizarLaudo(data) {
     const isDoente = pred.classe_id === 1;
 
     // Badges & Meta
-    runtimeBadge.innerHTML = `Modelo: <strong>${data.modelo_utilizado}</strong> | Tempo: <strong>${data.tempo_ms} ms</strong> (GPU)`;
+    runtimeBadge.innerHTML = `Modelo: <strong>${data.modelo_utilizado}</strong> | Tempo: <strong>${data.tempo_ms} ms</strong>`;
     frameModelBadge.textContent = data.modelo_utilizado;
 
     // Images
-    resOrigImg.src = imagePreview.src;
+    resOrigImg.src = previewSrc;
     resGradImg.src = data.gradcam_overlay_base64;
 
-    blendBaseImg.src = imagePreview.src;
+    blendBaseImg.src = previewSrc;
     blendHeatImg.src = data.gradcam_pure_base64;
 
     // Clinical Status
@@ -378,7 +440,7 @@ function renderizarLaudo(data) {
 btnRefreshHistory.addEventListener('click', () => carregarHistorico());
 
 btnClearHistory.addEventListener('click', async () => {
-    if (confirm('Deseja realmente limpar todo o histórico de exames salvos?')) {
+    if (confirm('Deseja realmente limpar todo o histórico de exames salvos no banco SQLite?')) {
         try {
             await fetch(`${API_BASE_URL}/api/historico`, { method: 'DELETE' });
             carregarHistorico();

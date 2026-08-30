@@ -215,7 +215,7 @@ body {
 
 /* ==========================================================================
    Main Grid Layout
-   ========================================================================= */
+   ========================================================================== */
 .workspace-grid {
     display: grid;
     grid-template-columns: 360px 1fr;
@@ -274,7 +274,7 @@ body {
 }
 
 /* ==========================================================================
-   Left Panel: Dropzone, Colormap & Samples
+   Left Panel: Dropzone, Colormap & Session Worklist
    ========================================================================== */
 .dropzone {
     border: 2px dashed var(--border-color);
@@ -490,60 +490,109 @@ body {
     to { transform: rotate(360deg); }
 }
 
-/* Samples List (2x2 grid) */
-.samples-list {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+/* Session Worklist */
+.session-list {
+    display: flex;
+    flex-direction: column;
     gap: 8px;
+    max-height: 240px;
+    overflow-y: auto;
+    padding-right: 2px;
 }
 
-.sample-card {
+.session-empty {
+    background: var(--bg-input);
+    border: 1px dashed var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 20px 14px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.session-empty-icon {
+    color: var(--text-dim);
+    margin-bottom: 2px;
+}
+
+.session-empty p {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.session-empty span {
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+.session-item {
     background: var(--bg-input);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     padding: 8px 10px;
     display: flex;
-    flex-direction: column;
-    gap: 4px;
+    align-items: center;
+    gap: 10px;
     cursor: pointer;
-    text-align: left;
-    color: var(--text-primary);
     transition: var(--transition-fast);
 }
 
-.sample-card:hover {
+.session-item:hover {
     background: var(--bg-card-elevated);
     border-color: rgba(255, 255, 255, 0.2);
     transform: translateY(-1px);
 }
 
-.sample-tag {
+.session-item.active {
+    border-color: var(--brand-accent);
+    background: rgba(2, 132, 199, 0.12);
+}
+
+.session-thumb {
+    width: 38px;
+    height: 38px;
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+    background: #000;
+    border: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.session-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.session-name {
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-primary);
+}
+
+.session-meta {
+    font-size: 10px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.session-badge {
     font-size: 9px;
     font-weight: 800;
     padding: 2px 6px;
     border-radius: var(--radius-sm);
     text-transform: uppercase;
-    width: fit-content;
-}
-
-.tag-healthy {
-    background: var(--status-healthy-bg);
-    color: #34D399;
-}
-
-.tag-alert {
-    background: var(--status-alert-bg);
-    color: #F87171;
-}
-
-.sample-details strong {
-    font-size: 12px;
-    display: block;
-}
-
-.sample-details span {
-    font-size: 10px;
-    color: var(--text-muted);
 }
 
 /* ==========================================================================
@@ -1000,7 +1049,7 @@ body {
 }
 
 /* ==========================================================================
-   History Table View
+   History Table View (SQLite)
    ========================================================================== */
 .view-history {
     display: flex;
