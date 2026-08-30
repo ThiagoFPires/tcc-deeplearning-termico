@@ -1,4 +1,4 @@
-# ThermoScan AI — Classificação e Explicabilidade em Termografia Mamária com Deep Learning
+# DeepVision CADe — Classificação e Explicabilidade em Termografia Mamária com Deep Learning
 
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.6.0-EE4C2C.svg?style=flat&logo=pytorch)](https://pytorch.org/)
 [![CUDA](https://img.shields.io/badge/CUDA-12.8%20(RTX%205060)-76B900.svg?style=flat&logo=nvidia)](https://developer.nvidia.com/cuda-zone)
@@ -8,7 +8,8 @@
 
 > **Trabalho de Conclusão de Curso (TCC)**  
 > **Autor:** Thiago Freitas Pires (`contato.thiagofreitasp@gmail.com`)  
-> **Sistema Computacional de Apoio ao Diagnóstico (CADe)** em Termografia Mamária utilizando **EfficientNet-B0**, **ResNet-50**, **Grad-CAM**, **Validação Cruzada 5-Fold** e **Docker**.
+> **DeepVision CADe**: Sistema Computacional de Detecção Assistida por Computador (CADe) em Termografia Mamária utilizando **EfficientNet-B0**, **ResNet-50**, **Grad-CAM**, **Validação Cruzada 5-Fold** e **Docker**.
+
 
 ---
 

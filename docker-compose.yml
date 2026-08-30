@@ -1,9 +1,10 @@
 services:
-  thermoscan-app:
+  deepvision-app:
     build:
       context: ./classificador-termico
       dockerfile: Dockerfile
-    container_name: thermoscan_cad_app
+    container_name: deepvision_cade_app
+
     ports:
       - "8000:8000"
     restart: unless-stopped

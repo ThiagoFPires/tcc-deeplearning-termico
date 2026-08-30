@@ -27,10 +27,11 @@ from gradcam import GradCAM, sobrepor_heatmap
 from banco import inicializar_banco, salvar_exame, listar_historico, limpar_historico
 
 app = FastAPI(
-    title="ThermoScan Clinical API",
-    description="Serviço de Diagnóstico e Explicabilidade Visual (Grad-CAM) para Termografia Mamária.",
-    version="2.1.0"
+    title="DeepVision CADe API",
+    description="Serviço de Detecção Assistida por Computador (CADe) e Explicabilidade Visual (Grad-CAM) para Termografia Mamária.",
+    version="2.2.0"
 )
+
 
 # Habilita CORS total para conexão com a Interface Web
 app.add_middleware(
