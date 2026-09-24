@@ -1,20 +1,22 @@
 /* ==========================================================================
-   ThermoScan AI — Modern Medical Diagnostic Workstation Stylesheet
-   Design: Clean, Premium, Minimalist Slate / Hospital CADe
+   ThermoScan AI / DeepVision CADe — Stealth Black & Gray Aesthetic
+   Design: Deep Pitch Black, Matte Charcoal, Slate Zinc & Metallic Silver Details
    ========================================================================== */
 
 :root {
-    --bg-main: #0B0F19;
-    --bg-card: #111827;
-    --bg-card-elevated: #1E293B;
-    --bg-input: #0A0E17;
+    --bg-main: #000000;
+    --bg-card: #0c0c0e;
+    --bg-card-elevated: #16161a;
+    --bg-input: #060608;
 
-    --border-color: #242E42;
-    --border-hover: #3B82F6;
+    --border-color: #242429;
+    --border-hover: #52525b;
+    --border-focus: #71717a;
 
-    --brand-primary: #0284C7;
-    --brand-primary-hover: #0369A1;
-    --brand-accent: #38BDF8;
+    --brand-primary: #e4e4e7;
+    --brand-primary-hover: #ffffff;
+    --brand-accent: #a1a1aa;
+    --brand-accent-light: #f4f4f5;
 
     --status-healthy: #10B981;
     --status-healthy-bg: rgba(16, 185, 129, 0.12);
@@ -23,10 +25,10 @@
     --status-warning: #F59E0B;
     --status-warning-bg: rgba(245, 158, 11, 0.10);
 
-    --text-primary: #F8FAFC;
-    --text-secondary: #94A3B8;
-    --text-muted: #64748B;
-    --text-dim: #475569;
+    --text-primary: #F4F4F5;
+    --text-secondary: #A1A1AA;
+    --text-muted: #71717A;
+    --text-dim: #52525B;
 
     --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
@@ -36,7 +38,7 @@
     --radius-lg: 14px;
     --radius-pill: 9999px;
 
-    --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+    --shadow-card: 0 4px 24px -2px rgba(0, 0, 0, 0.8), 0 0 0 1px var(--border-color);
     --transition-fast: all 0.15s ease;
 }
 
@@ -89,13 +91,14 @@ body {
 .brand-icon {
     width: 40px;
     height: 40px;
-    background: linear-gradient(135deg, #0284C7, #0369A1);
-    color: #fff;
+    background: linear-gradient(135deg, #27272a, #141416);
+    color: #f4f4f5;
+    border: 1px solid #3f3f46;
     border-radius: var(--radius-md);
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 10px rgba(2, 132, 199, 0.3);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
 }
 
 .brand-icon svg {
@@ -117,9 +120,10 @@ body {
     font-size: 10px;
     font-weight: 700;
     padding: 2px 6px;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid #333338;
     border-radius: var(--radius-sm);
-    color: var(--brand-accent);
+    color: var(--brand-accent-light);
 }
 
 .brand-desc {
@@ -169,14 +173,14 @@ body {
 
 .switch-btn:hover {
     color: var(--text-primary);
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .switch-btn.active {
     background: var(--bg-card-elevated);
     color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    border: 1px solid #3f3f46;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
 .dot-indicator {
@@ -187,8 +191,8 @@ body {
 }
 
 .switch-btn.active .dot-indicator {
-    background: var(--brand-accent);
-    box-shadow: 0 0 6px var(--brand-accent);
+    background: #e4e4e7;
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
 }
 
 /* System Status */
@@ -291,8 +295,8 @@ body {
 }
 
 .dropzone:hover, .dropzone.drag-active {
-    border-color: var(--brand-accent);
-    background: rgba(2, 132, 199, 0.05);
+    border-color: var(--border-hover);
+    background: rgba(255, 255, 255, 0.03);
 }
 
 .dropzone-idle {
@@ -309,10 +313,11 @@ body {
     height: 44px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-color);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--brand-accent);
+    color: var(--brand-accent-light);
     margin-bottom: 2px;
 }
 
@@ -399,7 +404,7 @@ body {
     align-items: center;
     font-size: 11px;
     font-weight: 700;
-    color: var(--brand-accent);
+    color: var(--brand-accent-light);
 }
 
 .btn-remove-preview-sm {
@@ -445,7 +450,7 @@ body {
     justify-content: center;
     font-size: 11px;
     font-weight: 700;
-    color: var(--brand-accent);
+    color: var(--brand-accent-light);
 }
 
 
@@ -492,9 +497,10 @@ body {
 }
 
 .cmap-choice.active {
-    border-color: var(--brand-accent);
-    background: rgba(2, 132, 199, 0.1);
+    border-color: #71717a;
+    background: rgba(255, 255, 255, 0.08);
     color: #fff;
+    box-shadow: 0 0 0 1px #52525b;
 }
 
 .cmap-bar {
@@ -519,9 +525,9 @@ body {
 .btn-execute {
     width: 100%;
     padding: 12px 16px;
-    background: var(--brand-primary);
-    color: #fff;
-    border: none;
+    background: #f4f4f5;
+    color: #09090b;
+    border: 1px solid #ffffff;
     border-radius: var(--radius-md);
     font-family: var(--font-main);
     font-size: 13px;
@@ -532,17 +538,19 @@ body {
     justify-content: center;
     gap: 8px;
     transition: var(--transition-fast);
-    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
 }
 
 .btn-execute:hover:not(:disabled) {
-    background: var(--brand-primary-hover);
+    background: #ffffff;
     transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.15);
 }
 
 .btn-execute:disabled {
     background: var(--bg-card-elevated);
     color: var(--text-dim);
+    border: 1px solid var(--border-color);
     box-shadow: none;
     cursor: not-allowed;
 }
@@ -550,8 +558,8 @@ body {
 .spinner-wheel {
     width: 16px;
     height: 16px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top-color: #fff;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    border-top-color: #09090b;
     border-radius: 50%;
     animation: spin 0.7s linear infinite;
 }
@@ -618,8 +626,9 @@ body {
 }
 
 .session-item.active {
-    border-color: var(--brand-accent);
-    background: rgba(2, 132, 199, 0.12);
+    border-color: #71717a;
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow: inset 0 0 0 1px #52525b;
 }
 
 .session-thumb {
@@ -766,7 +775,7 @@ body {
     width: 40px;
     height: 40px;
     border: 3px solid rgba(255, 255, 255, 0.1);
-    border-top-color: var(--brand-accent);
+    border-top-color: #f4f4f5;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
 }
@@ -806,7 +815,7 @@ body {
 }
 
 .zoom-tool-info svg {
-    color: var(--brand-accent);
+    color: var(--brand-accent-light);
 }
 
 .zoom-controls {
@@ -833,7 +842,7 @@ body {
 
 .btn-zoom-action:hover {
     background: rgba(255, 255, 255, 0.1);
-    border-color: var(--brand-accent);
+    border-color: #71717a;
 }
 
 .btn-zoom-reset {
@@ -847,7 +856,7 @@ body {
     font-family: var(--font-mono);
     font-size: 11px;
     font-weight: 700;
-    color: var(--brand-accent);
+    color: var(--brand-accent-light);
     min-width: 42px;
     text-align: center;
 }
@@ -913,7 +922,7 @@ body {
 .frame-model-badge {
     font-family: var(--font-mono);
     font-size: 10px;
-    color: var(--brand-accent);
+    color: var(--brand-accent-light);
 }
 
 .frame-body {
@@ -995,16 +1004,16 @@ body {
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    background: var(--brand-accent);
+    background: #e4e4e7;
     cursor: pointer;
-    box-shadow: 0 0 6px rgba(56, 189, 248, 0.6);
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
 }
 
 .slider-percent-pill {
     font-family: var(--font-mono);
     font-size: 11px;
     font-weight: 700;
-    color: var(--brand-accent);
+    color: var(--brand-accent-light);
     min-width: 36px;
     text-align: right;
 }
@@ -1140,7 +1149,7 @@ body {
 /* Explainability Clinical Note */
 .explainability-note {
     background: var(--bg-card-elevated);
-    border-left: 3px solid var(--brand-primary);
+    border-left: 3px solid #71717a;
     border-radius: var(--radius-sm);
     padding: 10px 14px;
     display: flex;
@@ -1150,7 +1159,7 @@ body {
 }
 
 .note-icon-wrap {
-    color: var(--brand-accent);
+    color: var(--brand-accent-light);
     margin-top: 1px;
     flex-shrink: 0;
 }
@@ -1344,4 +1353,28 @@ body {
 
 .hidden {
     display: none !important;
+}
+
+/* Custom Sleek Black & Gray Scrollbars */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #000000;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #27272a;
+    border-radius: var(--radius-pill);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #3f3f46;
+}
+
+::selection {
+    background: #3f3f46;
+    color: #f4f4f5;
 }
