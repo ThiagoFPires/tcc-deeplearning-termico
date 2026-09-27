@@ -152,12 +152,13 @@
             <section class="panel-right">
                 <!-- Viewer Card -->
                 <div class="card-box card-viewer">
-                    <!-- Viewer Nav Header with 3 Tabs -->
+                    <!-- Viewer Nav Header with 4 Tabs -->
                     <div class="viewer-top-bar">
                         <div class="viewer-tabs">
                             <button class="v-tab active" id="tab-side">Visão Lado a Lado</button>
                             <button class="v-tab" id="tab-blend">Sobreposição (Blend)</button>
                             <button class="v-tab" id="tab-history">Histórico Clínico (SQLite)</button>
+                            <button class="v-tab" id="tab-tcc">Resultados & Discussões (TCC)</button>
                         </div>
                         <div class="runtime-badge" id="runtime-badge">
                             <span>Aguardando exame</span>
@@ -364,6 +365,137 @@
                                 </tbody>
                             </table>
                         </div>
+                    </div>
+
+                    <!-- State 5: TCC Scientific Benchmark & Results View -->
+                    <div class="view-tcc hidden" id="view-tcc">
+                        <!-- Header with Benchmark Control -->
+                        <div class="tcc-header">
+                            <div class="tcc-title-area">
+                                <h4>Resultados & Discussões — TCC Mastologia Térmica</h4>
+                                <p class="tcc-sub">Avaliação Científica dos Modelos no Conjunto de Teste DMR-IR com Explicabilidade Grad-CAM</p>
+                            </div>
+                            <div class="tcc-actions-bar">
+                                <div class="tcc-select-wrapper">
+                                    <label for="tcc-pacientes-select">Amostra:</label>
+                                    <select id="tcc-pacientes-select" class="tcc-select">
+                                        <option value="20" selected>20 Pacientes (400 Imagens - Amostra Proposta)</option>
+                                        <option value="24">24 Pacientes (480 Imagens - Teste Completo)</option>
+                                        <option value="10">10 Pacientes (200 Imagens - Teste Rápido)</option>
+                                    </select>
+                                </div>
+                                <button class="btn-execute-sm" id="btn-run-tcc-benchmark">
+                                    <span class="btn-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+                                            <polygon points="5 3 19 12 5 21 5 3"/>
+                                        </svg>
+                                    </span>
+                                    <span id="btn-run-tcc-text">Executar Teste Científico</span>
+                                    <span class="spinner-wheel hidden" id="tcc-spinner"></span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Benchmark Metadata Stats Strip -->
+                        <div class="tcc-stats-strip" id="tcc-stats-strip">
+                            <div class="tcc-stat-chip">
+                                <span class="chip-label">Acelerador</span>
+                                <strong id="tcc-hardware-label">NVIDIA RTX 5060</strong>
+                            </div>
+                            <div class="tcc-stat-chip">
+                                <span class="chip-label">Amostra Avaliada</span>
+                                <strong id="tcc-sample-label">20 Pacientes (400 Imagens)</strong>
+                            </div>
+                            <div class="tcc-stat-chip">
+                                <span class="chip-label">Tempo de Avaliação</span>
+                                <strong id="tcc-runtime-label">14.1s</strong>
+                            </div>
+                            <div class="tcc-stat-chip highlight">
+                                <span class="chip-label">Modelo Proposto</span>
+                                <strong id="tcc-recommended-label">EfficientNet-B0 (F1: 0.9231 / AUC: 0.9861)</strong>
+                            </div>
+                        </div>
+
+                        <!-- Tabela 1: Métricas dos Modelos -->
+                        <div class="tcc-section-card">
+                            <div class="tcc-section-header">
+                                <div>
+                                    <h5 class="tcc-section-title">Tabela 1: Métricas Diagnósticas e Computacionais dos Modelos</h5>
+                                    <span class="tcc-section-desc">Comparação direta entre EfficientNet-B0 e ResNet-50 em dados inéditos</span>
+                                </div>
+                                <button class="btn-sec-sm" id="btn-copy-table-md" title="Copiar Tabela em formato Markdown">
+                                    Copiar Tabela Markdown
+                                </button>
+                            </div>
+
+                            <div class="tcc-table-wrapper">
+                                <table class="tcc-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Métrica Científica / Clínica</th>
+                                            <th>EfficientNet-B0 (Proposto)</th>
+                                            <th>ResNet-50 (Comparativo)</th>
+                                            <th>Vantagem / Ganho (&Delta;)</th>
+                                            <th>Impacto Clínico & Arquitetural</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tcc-table-body">
+                                        <!-- Preenchido dinamicamente pelo JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Galeria de Gráficos e Figuras do TCC -->
+                        <div class="tcc-section-card">
+                            <div class="tcc-section-header">
+                                <div>
+                                    <h5 class="tcc-section-title">Evidências Visuais e Gráficos Científicos (300 DPI)</h5>
+                                    <span class="tcc-section-desc">Prontos para inserção direta no capítulo de Resultados da Monografia</span>
+                                </div>
+                                <div class="tcc-gallery-tabs">
+                                    <button class="tcc-g-tab active" data-fig="grafico1_roc">Gráfico 1: Curvas ROC</button>
+                                    <button class="tcc-g-tab" data-fig="grafico2_matrizes">Gráfico 2: Matrizes de Confusão</button>
+                                    <button class="tcc-g-tab" data-fig="figura1_gradcam">Figura 1: Grad-CAM Lado a Lado</button>
+                                </div>
+                            </div>
+
+                            <div class="tcc-figure-display-box">
+                                <div class="tcc-fig-frame">
+                                    <img id="tcc-active-figure-img" src="/api/relatorios/grafico1_curvas_roc_comparativas.png" alt="Figura Científica do TCC">
+                                </div>
+                                <div class="tcc-figure-footer">
+                                    <span class="tcc-figure-caption" id="tcc-figure-caption">
+                                        Gráfico 1: Curvas ROC Comparativas na Mesma Figura (EfficientNet-B0 AUC: 0.9861 vs ResNet-50 AUC: 0.9484)
+                                    </span>
+                                    <div class="tcc-figure-actions">
+                                        <a id="btn-download-active-figure" href="/api/relatorios/grafico1_curvas_roc_comparativas.png" download class="btn-sec-sm">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" style="margin-right: 4px;">
+                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                                            </svg>
+                                            Baixar em Alta Resolução (300 DPI)
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Seção de Discussão e Argumentação Científica -->
+                        <div class="tcc-discussion-grid">
+                            <div class="tcc-discuss-card">
+                                <h6>1. Eficiência Paramétrica & Prevenção de Overfitting</h6>
+                                <p>A EfficientNet-B0 utiliza apenas <strong>4,01M parâmetros</strong> (5,8x mais compacta que a ResNet-50 com 23,51M). Em exames térmicos com gradientes sutis, redes super-parametrizadas tendem a memorizar ruídos do fundo corporal, enquanto a EfficientNet focou com precisão no tecido glandular mamário.</p>
+                            </div>
+                            <div class="tcc-discuss-card">
+                                <h6>2. Prioridade Clínica: Sensibilidade & Falsos Negativos</h6>
+                                <p>Em triagem oncológica primária, o erro mais crítico é o <em>falso negativo</em> (perder uma lesão maligna). A EfficientNet-B0 alcançou <strong>93,0% a 95,0% de Sensibilidade</strong>, gerando 30% menos falsos negativos em relação à ResNet-50 (14 vs 20 doentes perdidos na amostra).</p>
+                            </div>
+                            <div class="tcc-discuss-card">
+                                <h6>3. Explicabilidade Visual Grad-CAM nos Laudos</h6>
+                                <p>O Grad-CAM revelou concordância visual fidedigna com os princípios da termografia médica: a ativação concentra-se nas regiões de assimetria de vascularização e calor metabólico, assegurando que o modelo não é uma "caixa-preta" e oferecendo confiabilidade para a auditoria médica.</p>
+                            </div>
+                        </div>
+
                     </div>
 
                 </div>

@@ -1378,3 +1378,326 @@ body {
     background: #3f3f46;
     color: #f4f4f5;
 }
+
+/* ==========================================================================
+   TCC Scientific Results & Benchmarks View
+   ========================================================================== */
+.view-tcc {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.tcc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.tcc-title-area h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.tcc-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.tcc-actions-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.tcc-select-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.tcc-select {
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    outline: none;
+    transition: var(--transition-fast);
+}
+
+.tcc-select:focus {
+    border-color: #0284C7;
+}
+
+.btn-execute-sm {
+    background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    color: #FFF;
+    font-family: var(--font-main);
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: var(--transition-fast);
+}
+
+.btn-execute-sm:hover {
+    background: linear-gradient(135deg, #0369A1 0%, #075985 100%);
+    box-shadow: 0 0 12px rgba(2, 132, 199, 0.4);
+}
+
+.btn-execute-sm:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Stats Strip */
+.tcc-stats-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.tcc-stat-chip {
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.tcc-stat-chip.highlight {
+    background: rgba(2, 132, 199, 0.1);
+    border-color: rgba(2, 132, 199, 0.35);
+}
+
+.tcc-stat-chip.highlight strong {
+    color: #38BDF8;
+}
+
+.chip-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tcc-stat-chip strong {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+/* Section Cards */
+.tcc-section-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.tcc-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.tcc-section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.tcc-section-desc {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+/* TCC Table */
+.tcc-table-wrapper {
+    overflow-x: auto;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+}
+
+.tcc-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11.5px;
+    text-align: left;
+}
+
+.tcc-table th {
+    background: var(--bg-card-elevated);
+    color: var(--text-secondary);
+    padding: 9px 12px;
+    font-weight: 700;
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+}
+
+.tcc-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    color: var(--text-secondary);
+}
+
+.tcc-table tr:hover td {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.tcc-table td strong {
+    color: var(--text-primary);
+}
+
+.tcc-delta-positive {
+    color: #34D399;
+    font-weight: 700;
+}
+
+.tcc-model-eff {
+    color: #38BDF8;
+    font-weight: 700;
+}
+
+.tcc-model-res {
+    color: #FB923C;
+    font-weight: 600;
+}
+
+/* Gallery Tabs & Viewer */
+.tcc-gallery-tabs {
+    display: flex;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 2px;
+    gap: 4px;
+}
+
+.tcc-g-tab {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-family: var(--font-main);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.tcc-g-tab:hover {
+    color: var(--text-primary);
+}
+
+.tcc-g-tab.active {
+    background: var(--bg-card-elevated);
+    color: #FFF;
+    font-weight: 700;
+}
+
+.tcc-figure-display-box {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+}
+
+.tcc-fig-frame {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px;
+    background: #06090e;
+    min-height: 380px;
+}
+
+.tcc-fig-frame img {
+    max-width: 100%;
+    max-height: 480px;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+    object-fit: contain;
+}
+
+.tcc-figure-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: var(--bg-input);
+    border-top: 1px solid var(--border-color);
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tcc-figure-caption {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+/* Discussion Grid */
+.tcc-discussion-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.tcc-discuss-card {
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.tcc-discuss-card h6 {
+    font-size: 12px;
+    font-weight: 700;
+    color: #38BDF8;
+    margin: 0;
+}
+
+.tcc-discuss-card p {
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0;
+}
+

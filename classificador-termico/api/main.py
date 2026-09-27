@@ -275,7 +275,35 @@ def obter_amostra(classe: str, paciente_id: str, arquivo: str):
     caminho = os.path.join(TREINAMENTO_DIR, 'dataset', classe, paciente_id, arquivo)
     if os.path.exists(caminho):
         return FileResponse(caminho)
-    raise HTTPException(status_code=404, detail="Amostra não encontrada.")
+@app.get("/api/tcc/resultados")
+def obter_resultados_tcc():
+    """Retorna os resultados e métricas científicas geradas para o TCC."""
+    relatorios_dir = os.path.join(TREINAMENTO_DIR, 'relatorios')
+    json_path = os.path.join(relatorios_dir, 'resultados_tcc.json')
+    if not os.path.exists(json_path):
+        from gerar_resultados_tcc import executar_geracao_completa
+        executar_geracao_completa(num_pacientes=20)
+    
+    with open(json_path, 'r', encoding='utf-8') as f:
+        dados = json.load(f)
+    return dados
+
+@app.post("/api/tcc/executar-teste")
+def executar_teste_tcc(num_pacientes: int = Form(20)):
+    """Executa a avaliação nos pacientes do conjunto de teste (ex: 20 pacientes)."""
+    from gerar_resultados_tcc import executar_geracao_completa
+    num_p = max(2, min(24, int(num_pacientes)))
+    dados = executar_geracao_completa(num_pacientes=num_p)
+    return dados
+
+@app.get("/api/relatorios/{arquivo}")
+def obter_imagem_relatorio(arquivo: str):
+    """Serve as figuras científicas geradas em 300 DPI."""
+    relatorios_dir = os.path.join(TREINAMENTO_DIR, 'relatorios')
+    caminho = os.path.join(relatorios_dir, arquivo)
+    if os.path.exists(caminho):
+        return FileResponse(caminho)
+    raise HTTPException(status_code=404, detail="Arquivo de relatório não encontrado.")
 
 # Monta a interface web diretamente no FastAPI (porta 8000)
 from fastapi.staticfiles import StaticFiles
