@@ -1,7 +1,7 @@
 {
     "num_pacientes": 24,
     "total_imagens": 480,
-    "tempo_execucao_segundos": 7.77,
+    "tempo_execucao_segundos": 8.33,
     "dispositivo": "NVIDIA GeForce RTX 5060",
     "efficientnet_b0": {
         "acuracia": 0.9354166666666667,

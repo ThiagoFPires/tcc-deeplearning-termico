@@ -297,12 +297,29 @@ def executar_teste_tcc(num_pacientes: int = Form(20)):
     return dados
 
 @app.get("/api/relatorios/{arquivo}")
-def obter_imagem_relatorio(arquivo: str):
-    """Serve as figuras científicas geradas em 300 DPI."""
+def obter_imagem_relatorio(arquivo: str, download: bool = False):
+    """Serve as figuras científicas geradas em 300 DPI com suporte a download direto."""
     relatorios_dir = os.path.join(TREINAMENTO_DIR, 'relatorios')
     caminho = os.path.join(relatorios_dir, arquivo)
+
+    # Se a tabela ABNT for requisitada e ainda não existir fisicamente, gera a partir dos dados do TCC
+    if not os.path.exists(caminho) and arquivo == 'tabela1_metricas_abnt.png':
+        json_path = os.path.join(relatorios_dir, 'resultados_tcc.json')
+        if os.path.exists(json_path):
+            try:
+                import json
+                from gerar_resultados_tcc import gerar_tabela1_imagem_abnt
+                with open(json_path, 'r', encoding='utf-8') as f:
+                    dados = json.load(f)
+                gerar_tabela1_imagem_abnt(dados['efficientnet_b0'], dados['resnet50'], caminho)
+            except Exception as e:
+                print(f"Erro ao gerar tabela ABNT dinâmica: {e}")
+
     if os.path.exists(caminho):
-        return FileResponse(caminho)
+        headers = {}
+        if download:
+            headers["Content-Disposition"] = f'attachment; filename="{arquivo}"'
+        return FileResponse(caminho, headers=headers)
     raise HTTPException(status_code=404, detail="Arquivo de relatório não encontrado.")
 
 # Monta a interface web diretamente no FastAPI (porta 8000)

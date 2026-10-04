@@ -336,6 +336,94 @@ Parâmetros Totais      & \\textbf{{4,01 M}}                               & 23,
 
     return tabela_md
 
+def gerar_tabela1_imagem_abnt(metricas_eff, metricas_res, caminho_saida):
+    """
+    Gera a imagem da Tabela idêntica à do site:
+    - Sem título no topo e sem rodapé/autor (apenas a tabela limpa)
+    - Todas as divisões de células (linhas de grade horizontais e verticais)
+    - Fundo claro/branco com contraste e destaque nas colunas
+    - Informações e textos idênticos aos exibidos na interface web
+    - Alta resolução (300 DPI)
+    """
+    d_acc = (metricas_eff['acuracia'] - metricas_res['acuracia']) * 100
+    d_sens = (metricas_eff['sensibilidade'] - metricas_res['sensibilidade']) * 100
+    d_spec = (metricas_eff['especificidade'] - metricas_res['especificidade']) * 100
+    d_prec = (metricas_eff['precisao'] - metricas_res['precisao']) * 100
+    d_f1 = metricas_eff['f1_score'] - metricas_res['f1_score']
+    d_auc = metricas_eff['auc_roc'] - metricas_res['auc_roc']
+
+    col_labels = [
+        'Métrica Científica / Clínica',
+        'EfficientNet-B0 (Proposto)',
+        'ResNet-50 (Comparativo)',
+        'Vantagem / Ganho (Δ)',
+        'Impacto Clínico & Arquitetural'
+    ]
+
+    table_data = [
+        ['Acurácia Global', f"{metricas_eff['acuracia']*100:.2f}%", f"{metricas_res['acuracia']*100:.2f}%", f"+{d_acc:.2f}%", 'Maior índice global de acerto no diagnóstico automatizado.'],
+        ['Sensibilidade (Recall)', f"{metricas_eff['sensibilidade']*100:.2f}%", f"{metricas_res['sensibilidade']*100:.2f}%", f"+{d_sens:.2f}%", 'Minimização drástica de falsos negativos (vital para triagem do câncer).'],
+        ['Especificidade', f"{metricas_eff['especificidade']*100:.2f}%", f"{metricas_res['especificidade']*100:.2f}%", f"+{d_spec:.2f}%", 'Redução de alarmes falsos, evitando sobrecarga psicológica e biópsias.'],
+        ['Precisão', f"{metricas_eff['precisao']*100:.2f}%", f"{metricas_res['precisao']*100:.2f}%", f"+{d_prec:.2f}%", 'Alta confiabilidade diagnóstica quando o sistema sinaliza patologia.'],
+        ['F1-Score', f"{metricas_eff['f1_score']:.4f}", f"{metricas_res['f1_score']:.4f}", f"+{d_f1:.4f}", 'Equilíbrio harmônico ótimo entre sensibilidade e precisão.'],
+        ['AUC-ROC', f"{metricas_eff['auc_roc']:.4f}", f"{metricas_res['auc_roc']:.4f}", f"+{d_auc:.4f}", 'Capacidade superior de discriminação em qualquer limiar de corte.'],
+        ['Complexidade de Parâmetros', '4,01 Milhões', '23,51 Milhões', '-82,9% (5,8x mais leve)', 'Prevenção de overfitting em termogramas e menor custo computacional.'],
+        ['Tamanho dos Pesos (.pth)', '~15,3 MB', '~89,7 MB', '-74,4 MB', 'Facilidade para deploy em unidades de saúde e edge devices.'],
+        ['Tempo Médio de Inferência', '~85 ms', '~115 ms', '26% mais rápida', 'Interatividade em tempo real na estação médica PACS.']
+    ]
+
+    fig = plt.figure(figsize=(15.8, 5.2), dpi=300)
+    fig.patch.set_facecolor('white')
+    ax = fig.add_subplot(111)
+    ax.axis('off')
+
+    tab = ax.table(
+        cellText=table_data,
+        colLabels=col_labels,
+        loc='center',
+        cellLoc='center',
+        colWidths=[0.18, 0.14, 0.14, 0.13, 0.41]
+    )
+
+    tab.auto_set_font_size(False)
+    tab.set_fontsize(8.9)
+    tab.scale(1.0, 1.75)
+
+    for (r, c), cell in tab.get_celld().items():
+        cell.visible_edges = 'closed'
+        cell.set_edgecolor('#CBD5E1')
+        cell.set_linewidth(1.0)
+        
+        if r == 0:
+            # Cabeçalho destacado
+            cell.set_facecolor('#F1F5F9')
+            cell.set_edgecolor('#94A3B8')
+            cell.set_linewidth(1.2)
+            cell.set_text_props(fontweight='bold', color='#0F172A')
+            if c == 0 or c == 4:
+                cell.set_text_props(ha='left')
+            else:
+                cell.set_text_props(ha='center')
+        else:
+            # Linhas com fundo alternado sutil para legibilidade perfeita
+            bg_cor = '#FFFFFF' if r % 2 != 0 else '#F8FAFC'
+            cell.set_facecolor(bg_cor)
+            
+            if c == 0:
+                cell.set_text_props(ha='left', fontweight='bold', color='#0F172A')
+            elif c == 1:
+                cell.set_text_props(ha='center', fontweight='bold', color='#0284C7')
+            elif c == 2:
+                cell.set_text_props(ha='center', fontweight='600', color='#C2410C')
+            elif c == 3:
+                cell.set_text_props(ha='center', fontweight='bold', color='#059669')
+            elif c == 4:
+                cell.set_text_props(ha='left', color='#334155')
+
+    plt.tight_layout()
+    plt.savefig(caminho_saida, dpi=300, bbox_inches='tight', pad_inches=0.03, facecolor='white', edgecolor='none')
+    plt.close()
+
 def executar_geracao_completa(num_pacientes: int = 20):
     """
     Executa a avaliação nos pacientes do conjunto de teste (ex: 20 pacientes)
@@ -415,6 +503,11 @@ def executar_geracao_completa(num_pacientes: int = 20):
     tabela_md = gerar_tabela1_markdown_e_latex(metricas_eff, metricas_res, relatorios_dir)
     print(f" -> Tabela 1 gerada (Markdown e LaTeX)")
 
+    # 7. Gera Tabela 1 em Imagem no Padrão ABNT / IBGE (Fundo branco, bordas laterais abertas, 300 DPI)
+    caminho_tabela_abnt = os.path.join(relatorios_dir, 'tabela1_metricas_abnt.png')
+    gerar_tabela1_imagem_abnt(metricas_eff, metricas_res, caminho_tabela_abnt)
+    print(f" -> Tabela 1 ABNT gerada em imagem (300 DPI): {caminho_tabela_abnt}")
+
     tempo_total = round(time.time() - t_inicio, 2)
 
     # Salva JSON consolidado para consumo direto pela API e Frontend
@@ -429,6 +522,7 @@ def executar_geracao_completa(num_pacientes: int = 20):
             'grafico1_roc': 'grafico1_curvas_roc_comparativas.png',
             'grafico2_matrizes': 'grafico2_matrizes_confusao.png',
             'figura1_gradcam': 'figura1_gradcam_comparativo.png',
+            'tabela1_abnt': 'tabela1_metricas_abnt.png',
             'tabela1_md': 'tabela1_metricas.md',
             'tabela1_tex': 'tabela1_metricas.tex'
         }
@@ -437,6 +531,18 @@ def executar_geracao_completa(num_pacientes: int = 20):
     caminho_json = os.path.join(relatorios_dir, 'resultados_tcc.json')
     with open(caminho_json, 'w', encoding='utf-8') as f:
         json.dump(resultado_json, f, indent=4)
+
+    # Sincroniza cópia estática para o frontend web
+    try:
+        import shutil
+        interface_rel_dir = os.path.join(PROJECT_ROOT, 'interface', 'relatorios')
+        os.makedirs(interface_rel_dir, exist_ok=True)
+        for arq_nome in os.listdir(relatorios_dir):
+            src_arq = os.path.join(relatorios_dir, arq_nome)
+            if os.path.isfile(src_arq):
+                shutil.copy2(src_arq, os.path.join(interface_rel_dir, arq_nome))
+    except Exception as e:
+        print(f"Aviso de sincronização estática: {e}")
 
     print("=" * 70)
     print(f"PROCESSAMENTO CONCLUÍDO COM SUCESSO EM {tempo_total}s!")

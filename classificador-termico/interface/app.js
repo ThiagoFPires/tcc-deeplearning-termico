@@ -73,6 +73,7 @@ const tccRecommendedLabel = document.getElementById('tcc-recommended-label');
 const tccActiveFigureImg = document.getElementById('tcc-active-figure-img');
 const tccFigureCaption = document.getElementById('tcc-figure-caption');
 const btnDownloadActiveFigure = document.getElementById('btn-download-active-figure');
+const btnDownloadTabelaPng = document.getElementById('btn-download-tabela-png');
 const btnCopyTableMd = document.getElementById('btn-copy-table-md');
 const tccGTabs = document.querySelectorAll('.tcc-g-tab');
 
@@ -786,6 +787,10 @@ function renderizarTabelaHistorico(lista) {
 let tccResultadosCache = null;
 
 const figurasTccConfig = {
+    tabela1_abnt: {
+        arquivo: 'tabela1_metricas_abnt.png',
+        caption: 'Tabela 1: Comparativo Diagnóstico e Computacional no Conjunto de Teste (DMR-IR)'
+    },
     grafico1_roc: {
         arquivo: 'grafico1_curvas_roc_comparativas.png',
         caption: 'Gráfico 1: Curvas ROC Comparativas na Mesma Figura (EfficientNet-B0 vs ResNet-50)'
@@ -814,6 +819,13 @@ async function carregarResultadosTcc() {
         const dados = await resp.json();
         tccResultadosCache = dados;
         renderizarResultadosTcc(dados);
+
+        // Inicializa imagem ativa na galeria a partir da API (porta 8000)
+        const conf = figurasTccConfig[figuraAtivaTcc] || figurasTccConfig['tabela1_abnt'] || figurasTccConfig['grafico1_roc'];
+        if (conf && tccActiveFigureImg) {
+            tccActiveFigureImg.src = `${API_BASE_URL}/api/relatorios/${conf.arquivo}?t=${new Date().getTime()}`;
+            tccFigureCaption.textContent = conf.caption;
+        }
     } catch (err) {
         console.error('Erro ao carregar dados do TCC:', err);
     }
@@ -941,10 +953,9 @@ btnRunTccBenchmark.addEventListener('click', async () => {
         // Atualiza imagem ativa da galeria sem cache
         const t = new Date().getTime();
         const conf = figurasTccConfig[figuraAtivaTcc];
-        if (conf) {
-            const url = `${API_BASE_URL}/api/relatorios/${conf.arquivo}?t=${t}`;
-            tccActiveFigureImg.src = url;
-            btnDownloadActiveFigure.href = url;
+        if (conf && tccActiveFigureImg) {
+            tccActiveFigureImg.src = `${API_BASE_URL}/api/relatorios/${conf.arquivo}?t=${t}`;
+            tccFigureCaption.textContent = conf.caption;
         }
 
     } catch (e) {
@@ -956,6 +967,49 @@ btnRunTccBenchmark.addEventListener('click', async () => {
     }
 });
 
+// Função universal de download via Blob (evita problemas de porta e cross-origin)
+async function baixarArquivoViaBlob(url, nomeArquivo) {
+    try {
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error(`Status ${resp.status}: Arquivo não disponível no servidor.`);
+        const blob = await resp.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = blobUrl;
+        a.download = nomeArquivo;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(blobUrl);
+        }, 300);
+    } catch (err) {
+        console.warn('Falha no download via blob, tentando download direto:', err);
+        const sep = url.includes('?') ? '&' : '?';
+        window.open(`${url}${sep}download=true`, '_blank');
+    }
+}
+
+// Handler de Download Direto da Tabela ABNT em PNG
+if (btnDownloadTabelaPng) {
+    btnDownloadTabelaPng.addEventListener('click', (e) => {
+        e.preventDefault();
+        const url = `${API_BASE_URL}/api/relatorios/tabela1_metricas_abnt.png?t=${new Date().getTime()}`;
+        baixarArquivoViaBlob(url, 'tabela1_metricas_abnt.png');
+    });
+}
+
+// Handler de Download Direto da Imagem Científica Ativa
+if (btnDownloadActiveFigure) {
+    btnDownloadActiveFigure.addEventListener('click', (e) => {
+        e.preventDefault();
+        const conf = figurasTccConfig[figuraAtivaTcc] || figurasTccConfig['grafico1_roc'];
+        const url = `${API_BASE_URL}/api/relatorios/${conf.arquivo}?t=${new Date().getTime()}`;
+        baixarArquivoViaBlob(url, conf.arquivo);
+    });
+}
+
 // Handler das Tabs da Galeria de Figuras
 tccGTabs.forEach(tabBtn => {
     tabBtn.addEventListener('click', () => {
@@ -965,11 +1019,9 @@ tccGTabs.forEach(tabBtn => {
         const figKey = tabBtn.getAttribute('data-fig');
         figuraAtivaTcc = figKey;
         const conf = figurasTccConfig[figKey];
-        if (conf) {
-            const url = `${API_BASE_URL}/api/relatorios/${conf.arquivo}?t=${new Date().getTime()}`;
-            tccActiveFigureImg.src = url;
+        if (conf && tccActiveFigureImg) {
+            tccActiveFigureImg.src = `${API_BASE_URL}/api/relatorios/${conf.arquivo}?t=${new Date().getTime()}`;
             tccFigureCaption.textContent = conf.caption;
-            btnDownloadActiveFigure.href = url;
         }
     });
 });

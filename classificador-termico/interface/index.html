@@ -423,9 +423,17 @@
                                     <h5 class="tcc-section-title">Tabela 1: Métricas Diagnósticas e Computacionais dos Modelos</h5>
                                     <span class="tcc-section-desc">Comparação direta entre EfficientNet-B0 e ResNet-50 em dados inéditos</span>
                                 </div>
-                                <button class="btn-sec-sm" id="btn-copy-table-md" title="Copiar Tabela em formato Markdown">
-                                    Copiar Tabela Markdown
-                                </button>
+                                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                                    <button class="btn-sec-sm" id="btn-download-tabela-png" title="Baixar imagem da Tabela de Métricas em alta resolução (300 DPI)">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" style="margin-right: 4px; vertical-align: middle;">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                                        </svg>
+                                        Baixar Tabela (PNG)
+                                    </button>
+                                    <button class="btn-sec-sm" id="btn-copy-table-md" title="Copiar Tabela em formato Markdown">
+                                        Copiar Markdown
+                                    </button>
+                                </div>
                             </div>
 
                             <div class="tcc-table-wrapper">
@@ -454,6 +462,7 @@
                                     <span class="tcc-section-desc">Prontos para inserção direta no capítulo de Resultados da Monografia</span>
                                 </div>
                                 <div class="tcc-gallery-tabs">
+                                    <button class="tcc-g-tab" data-fig="tabela1_abnt">Tabela 1: Métricas</button>
                                     <button class="tcc-g-tab active" data-fig="grafico1_roc">Gráfico 1: Curvas ROC</button>
                                     <button class="tcc-g-tab" data-fig="grafico2_matrizes">Gráfico 2: Matrizes de Confusão</button>
                                     <button class="tcc-g-tab" data-fig="figura1_gradcam">Figura 1: Grad-CAM Lado a Lado</button>
@@ -462,19 +471,19 @@
 
                             <div class="tcc-figure-display-box">
                                 <div class="tcc-fig-frame">
-                                    <img id="tcc-active-figure-img" src="/api/relatorios/grafico1_curvas_roc_comparativas.png" alt="Figura Científica do TCC">
+                                    <img id="tcc-active-figure-img" src="" alt="Figura Científica do TCC">
                                 </div>
                                 <div class="tcc-figure-footer">
                                     <span class="tcc-figure-caption" id="tcc-figure-caption">
-                                        Gráfico 1: Curvas ROC Comparativas na Mesma Figura (EfficientNet-B0 AUC: 0.9861 vs ResNet-50 AUC: 0.9484)
+                                        Gráfico 1: Curvas ROC Comparativas na Mesma Figura (EfficientNet-B0 vs ResNet-50)
                                     </span>
                                     <div class="tcc-figure-actions">
-                                        <a id="btn-download-active-figure" href="/api/relatorios/grafico1_curvas_roc_comparativas.png" download class="btn-sec-sm">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" style="margin-right: 4px;">
+                                        <button id="btn-download-active-figure" class="btn-sec-sm" title="Baixar figura científica em 300 DPI">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" style="margin-right: 4px; vertical-align: middle;">
                                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
                                             </svg>
                                             Baixar em Alta Resolução (300 DPI)
-                                        </a>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
