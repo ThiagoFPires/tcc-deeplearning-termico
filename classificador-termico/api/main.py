@@ -282,14 +282,14 @@ def obter_resultados_tcc():
     json_path = os.path.join(relatorios_dir, 'resultados_tcc.json')
     if not os.path.exists(json_path):
         from gerar_resultados_tcc import executar_geracao_completa
-        executar_geracao_completa(num_pacientes=20)
+        executar_geracao_completa(num_pacientes=24)
     
     with open(json_path, 'r', encoding='utf-8') as f:
         dados = json.load(f)
     return dados
 
 @app.post("/api/tcc/executar-teste")
-def executar_teste_tcc(num_pacientes: int = Form(20)):
+def executar_teste_tcc(num_pacientes: int = Form(24)):
     """Executa a avaliação nos pacientes do conjunto de teste (ex: 20 pacientes)."""
     from gerar_resultados_tcc import executar_geracao_completa
     num_p = max(2, min(24, int(num_pacientes)))

@@ -930,7 +930,7 @@ function renderizarResultadosTcc(dados) {
 
 // Handler de Execução do Benchmark
 btnRunTccBenchmark.addEventListener('click', async () => {
-    const numPacientes = parseInt(tccPacientesSelect.value, 10) || 20;
+    const numPacientes = parseInt(tccPacientesSelect.value, 10) || 24;
     btnRunTccBenchmark.disabled = true;
     btnRunTccText.textContent = `Avaliando ${numPacientes} pacientes...`;
     tccSpinner.classList.remove('hidden');
@@ -962,7 +962,7 @@ btnRunTccBenchmark.addEventListener('click', async () => {
         alert('Falha ao executar o teste científico: ' + e.message);
     } finally {
         btnRunTccBenchmark.disabled = false;
-        btnRunTccText.textContent = 'Executar Teste Científico';
+        btnRunTccText.textContent = 'Executar Validação Científica';
         tccSpinner.classList.add('hidden');
     }
 });

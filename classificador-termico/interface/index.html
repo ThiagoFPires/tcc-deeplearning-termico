@@ -158,7 +158,7 @@
                             <button class="v-tab active" id="tab-side">Visão Lado a Lado</button>
                             <button class="v-tab" id="tab-blend">Sobreposição (Blend)</button>
                             <button class="v-tab" id="tab-history">Histórico Clínico (SQLite)</button>
-                            <button class="v-tab" id="tab-tcc">Resultados & Discussões (TCC)</button>
+                            <button class="v-tab" id="tab-tcc">Resultados & Discussões</button>
                         </div>
                         <div class="runtime-badge" id="runtime-badge">
                             <span>Aguardando exame</span>
@@ -372,15 +372,15 @@
                         <!-- Header with Benchmark Control -->
                         <div class="tcc-header">
                             <div class="tcc-title-area">
-                                <h4>Resultados & Discussões — TCC Mastologia Térmica</h4>
-                                <p class="tcc-sub">Avaliação Científica dos Modelos no Conjunto de Teste DMR-IR com Explicabilidade Grad-CAM</p>
+                                <h4>Resultados & Discussões — Mastologia Térmica</h4>
+                                <p class="tcc-sub">Módulo de Validação Científica dos Modelos no Conjunto de Teste DMR-IR com Explicabilidade Grad-CAM</p>
                             </div>
                             <div class="tcc-actions-bar">
                                 <div class="tcc-select-wrapper">
                                     <label for="tcc-pacientes-select">Amostra:</label>
                                     <select id="tcc-pacientes-select" class="tcc-select">
-                                        <option value="20" selected>20 Pacientes (400 Imagens - Amostra Proposta)</option>
-                                        <option value="24">24 Pacientes (480 Imagens - Teste Completo)</option>
+                                        <option value="24" selected>24 Pacientes (480 Imagens - Teste Completo)</option>
+                                        <option value="20">20 Pacientes (400 Imagens - Subamostra)</option>
                                         <option value="10">10 Pacientes (200 Imagens - Teste Rápido)</option>
                                     </select>
                                 </div>
@@ -390,7 +390,7 @@
                                             <polygon points="5 3 19 12 5 21 5 3"/>
                                         </svg>
                                     </span>
-                                    <span id="btn-run-tcc-text">Executar Teste Científico</span>
+                                    <span id="btn-run-tcc-text">Executar Validação Científica</span>
                                     <span class="spinner-wheel hidden" id="tcc-spinner"></span>
                                 </button>
                             </div>
@@ -400,19 +400,19 @@
                         <div class="tcc-stats-strip" id="tcc-stats-strip">
                             <div class="tcc-stat-chip">
                                 <span class="chip-label">Acelerador</span>
-                                <strong id="tcc-hardware-label">NVIDIA RTX 5060</strong>
+                                <strong id="tcc-hardware-label">NVIDIA GeForce RTX 5060</strong>
                             </div>
                             <div class="tcc-stat-chip">
                                 <span class="chip-label">Amostra Avaliada</span>
-                                <strong id="tcc-sample-label">20 Pacientes (400 Imagens)</strong>
+                                <strong id="tcc-sample-label">24 Pacientes (480 Imagens)</strong>
                             </div>
                             <div class="tcc-stat-chip">
                                 <span class="chip-label">Tempo de Avaliação</span>
-                                <strong id="tcc-runtime-label">14.1s</strong>
+                                <strong id="tcc-runtime-label">8.33s</strong>
                             </div>
                             <div class="tcc-stat-chip highlight">
                                 <span class="chip-label">Modelo Proposto</span>
-                                <strong id="tcc-recommended-label">EfficientNet-B0 (F1: 0.9231 / AUC: 0.9861)</strong>
+                                <strong id="tcc-recommended-label">EfficientNet-B0 (F1: 0.9449 / AUC: 0.9865)</strong>
                             </div>
                         </div>
 
@@ -421,7 +421,7 @@
                             <div class="tcc-section-header">
                                 <div>
                                     <h5 class="tcc-section-title">Tabela 1: Métricas Diagnósticas e Computacionais dos Modelos</h5>
-                                    <span class="tcc-section-desc">Comparação direta entre EfficientNet-B0 e ResNet-50 em dados inéditos</span>
+                                    <span class="tcc-section-desc">Comparação direta entre EfficientNet-B0 e ResNet-50 em pacientes inéditos</span>
                                 </div>
                                 <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                                     <button class="btn-sec-sm" id="btn-download-tabela-png" title="Baixar imagem da Tabela de Métricas em alta resolução (300 DPI)">
@@ -430,7 +430,7 @@
                                         </svg>
                                         Baixar Tabela (PNG)
                                     </button>
-                                    <button class="btn-sec-sm" id="btn-copy-table-md" title="Copiar Tabela em formato Markdown">
+                                    <button class="btn-sec-sm hidden" id="btn-copy-table-md" style="display: none;" title="Copiar Tabela em formato Markdown">
                                         Copiar Markdown
                                     </button>
                                 </div>
@@ -454,12 +454,12 @@
                             </div>
                         </div>
 
-                        <!-- Galeria de Gráficos e Figuras do TCC -->
+                        <!-- Galeria de Gráficos e Figuras Científicas -->
                         <div class="tcc-section-card">
                             <div class="tcc-section-header">
                                 <div>
-                                    <h5 class="tcc-section-title">Evidências Visuais e Gráficos Científicos (300 DPI)</h5>
-                                    <span class="tcc-section-desc">Prontos para inserção direta no capítulo de Resultados da Monografia</span>
+                                    <h5 class="tcc-section-title">Evidências Visuais e Gráficos de Desempenho Diagnóstico</h5>
+                                    <span class="tcc-section-desc">Análise auditada no conjunto de teste independente sem vazamento de dados (patient-level split)</span>
                                 </div>
                                 <div class="tcc-gallery-tabs">
                                     <button class="tcc-g-tab" data-fig="tabela1_abnt">Tabela 1: Métricas</button>
@@ -471,7 +471,7 @@
 
                             <div class="tcc-figure-display-box">
                                 <div class="tcc-fig-frame">
-                                    <img id="tcc-active-figure-img" src="" alt="Figura Científica do TCC">
+                                    <img id="tcc-active-figure-img" src="" alt="Figura de Validação Científica">
                                 </div>
                                 <div class="tcc-figure-footer">
                                     <span class="tcc-figure-caption" id="tcc-figure-caption">
@@ -497,7 +497,7 @@
                             </div>
                             <div class="tcc-discuss-card">
                                 <h6>2. Prioridade Clínica: Sensibilidade & Falsos Negativos</h6>
-                                <p>Em triagem oncológica primária, o erro mais crítico é o <em>falso negativo</em> (perder uma lesão maligna). A EfficientNet-B0 alcançou <strong>93,0% a 95,0% de Sensibilidade</strong>, gerando 30% menos falsos negativos em relação à ResNet-50 (14 vs 20 doentes perdidos na amostra).</p>
+                                <p>Em triagem oncológica primária, o erro mais crítico é o <em>falso negativo</em> (perder uma lesão maligna). A EfficientNet-B0 alcançou <strong>95,00% de Sensibilidade</strong>, gerando 30% menos falsos negativos em relação à ResNet-50 (14 vs 20 casos não detectados na amostra).</p>
                             </div>
                             <div class="tcc-discuss-card">
                                 <h6>3. Explicabilidade Visual Grad-CAM nos Laudos</h6>
